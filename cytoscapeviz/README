@@ -1,0 +1,48 @@
+----- cytoscapeviz.pl ----- :
+
+Searches for paired end (PE) reads in a given SAM file and generates overviews of where the PE reads maps to use in cytoscape.
+
+To run:
+
+perl cytoscapeviz.pl -i mygenome.mapping.sam -c
+
+The following settings can be changed:
+
+[-infile -i]         SAM format mapping infile
+[-outcon -o]         Connections tab file for cytoscape (default: cytoscape.connections.tab)
+[-outlen -l]         Contig length tab file for cytoscape (default: cytoscape.length.tab)
+[-outcov -u]         Contig coverage tab file for cytoscape (default: cytoscape.coverage.tab)
+[-enddist -e]        Reads must hit within this distance of the end to be considered an end hit (default: 500)
+[-minlength -m]      The minimum lenght of a contig to infer closed circle (default: 3000)
+[-minconnections -f] The minimum number of connections to print the connection to the outfile (default: 10)
+[-avgreadlength -a]  The average readlength of the reads used to estimate read position (default: 125)
+[-headersplit -s]    The symbol used to split the header to make the read 1 and 2 headers identical (default: _)
+[-condensed -c]      Make additional condensed output files with only 1 node per contig.
+
+Outputfiles:
+
+cytoscape.connections.tab  : Load as network file. Indicate connections between two ends of contigs. There are two types of interactions. 0 is used to indicate connection between the start and end of a contig. Start and end of a contig is indicated by addition of "s" or "e" to the contig name. 1 is used to indicate connections between the ends of two different contigs. In addition the number of connections are indicated in column 4.
+cytoscape.coverage.tab     : Load as node attribute file. Coverage of all contigs. Used to color nodes (contigs) by their coverage.
+cytoscape.length.tab       : Load as node attribute file. Length of all contigs. Used to scale nodes (contigs) by their length.
+
+If -c is added, additional condensed output files with only 1 node per contig is made. Default is 2 nodes per contig (start and end). Otherwise the files are similar to the default output.
+
+condensed.cytoscape.connections.tab
+condensed.cytoscape.coverage.tab
+condensed.cytoscape.length.tab
+
+The program expects read names to be of the following format:
+
+X_1
+X_2
+
+Hence splitting the header by "_" results in the same read name for the paired reads.
+
+E.g the sam file might look as:
+
+@HD	VN:1.0	SO:unsorted
+@SQ	SN:contig1	LN:11661
+@SQ	SN:contig2	LN:15454
+@PG	ID:0	PN:clcgenomicswb	VN:5.0
+HWI-ST1040:48:c06lnacxx:2:1101:7493:111092_1:N:0:CAGATC	0	contig1	373	60	100M	*	0	0	CCTCGCTCAAGATACCGGCCTAGAATCCGAGTTATCGATTTGGGATGAGATGCTGACAGTATTTGACCCGCTTTTAAAAATGGAAAAAAGACTAAGAGAG	@CCFFFDFHHGHHIDIIEGHEHGEHIGIGFHGHIIGIGGHGIJJC@ACHIIIFDIGFHGAEEFDFCCDFDDDBBDCDCDDDDDCDDDDD>?CCDDDDCC@	NH:i:1
+HWI-ST1040:48:c06lnacxx:2:1101:7493:111092_2:N:0:CAGATC	16	contig2	615	60	100M	*	0	0	CAGGCCTTCATTTTGACTCTTATGACTATCAAACAAAAATCCAAACGCTAAGCGGCGGGCAGAAAACAAGACTAGCCCTTGGTAAACTATTATTAACCAA	?>81C>CCDDCCC>:5>CDCADADCDDDCCDC@>EDDBFEBEECGBF=4@BIHGHEEGGHEFJHIIJIGGHHHGIIIJIJJJIHEHGHGHFDFDDDFCC@	NH:i:1
