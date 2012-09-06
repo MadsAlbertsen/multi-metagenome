@@ -25,7 +25,7 @@ cytoscape.connections.tab  : Load as network file. Indicate connections between 
 cytoscape.coverage.tab     : Load as node attribute file. Coverage of all contigs. Used to color nodes (contigs) by their coverage.
 cytoscape.length.tab       : Load as node attribute file. Length of all contigs. Used to scale nodes (contigs) by their length.
 
-If -c is added, additional condensed output files with only 1 node per contig is made. Default is 2 nodes per contig (start and end). Otherwise the files are similar to the default output.
+If the flag -c is added, additional condensed output files with only 1 node per contig is made. Default is 2 nodes per contig (start and end). Otherwise the files are similar to the default output.
 
 condensed.cytoscape.connections.tab
 condensed.cytoscape.coverage.tab
