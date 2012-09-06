@@ -1,0 +1,40 @@
+<rule>
+importance = 100
+condition = (_CHR1_ eq "contig8") && (_CHR2_ eq "contig4")
+show = no
+</rule>
+<rule>
+importance = 100
+condition = (_CHR1_ eq "contig13") && (_CHR2_ eq "contig11")
+show = no
+</rule>
+<rule>
+importance = 100
+condition = (_CHR1_ eq "contig9") && (_CHR2_ eq "contig7")
+show = no
+</rule>
+<rule>
+importance = 100
+condition = (_CHR1_ eq "contig14") && (_CHR2_ eq "contig7")
+show = no
+</rule>
+<rule>
+importance = 100
+condition = (_CHR1_ eq "contig18") && (_CHR2_ eq "contig15")
+show = no
+</rule>
+<rule>
+importance = 100
+condition = (_CHR1_ eq "contig18") && (_CHR2_ eq "contig12")
+show = no
+</rule>
+<rule>
+importance = 100
+condition = (_CHR1_ eq "contig7") && (_CHR2_ eq "contig1")
+show = no
+</rule>
+<rule>
+importance = 100
+condition = (_CHR1_ eq "contig16") && (_CHR2_ eq "contig6")
+show = no
+</rule>

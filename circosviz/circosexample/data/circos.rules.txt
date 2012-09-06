@@ -1,0 +1,76 @@
+<rule>
+condition = _CHR1_ eq "contig4"
+color = set1-7-qual-1_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig3"
+color = set1-7-qual-2_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig2"
+color = set1-7-qual-3_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig11"
+color = set1-7-qual-4_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig8"
+color = set1-7-qual-5_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig9"
+color = set1-7-qual-6_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig6"
+color = set1-7-qual-7_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig7"
+color = set1-7-qual-1_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig15"
+color = set1-7-qual-2_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig10"
+color = set1-7-qual-3_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig17"
+color = set1-7-qual-4_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig14"
+color = set1-7-qual-5_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig13"
+color = set1-7-qual-6_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig16"
+color = set1-7-qual-7_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig1"
+color = set1-7-qual-1_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig19"
+color = set1-7-qual-2_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig12"
+color = set1-7-qual-3_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig5"
+color = set1-7-qual-4_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "contig18"
+color = set1-7-qual-5_a5
+</rule>
