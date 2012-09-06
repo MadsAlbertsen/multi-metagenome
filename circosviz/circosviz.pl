@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 ###############################################################################
 #
-#    circosviz.pl
+#    circosviz.pl version 1.0
 #    
 #    Indicates connections between contigs/scaffolds and produces circos 
 #    files for visualization 
@@ -406,11 +406,11 @@ __DATA__
 =head1 DESCRIPTION
 
 	Indicates connections between contigs/scaffolds and produces circos 
-	files for visualization 
+	files for visualization
 
 =head1 SYNOPSIS
 
-circosviz.pl  -i -f [-e -m -a -s -b -p ]
+circosviz.pl  -i -f [-e -m -a -s -b -p ] : version 1.0
 
  [-help -h]           Displays this basic usage information
  [-samfile -i]        SAM formated mapping file

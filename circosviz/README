@@ -2,18 +2,20 @@
 
 Searches for paired end (PE) reads in a given SAM file and generates overviews of where the PE reads maps to use directly in ciros. An example of the circos configuration file can be found in circosexample/etc/denovoviz.conf and example data output in circosexample/data.
 
+To run:
+
 perl circosviz.pl -i mygenome.mapping.sam -f mygenome.fa
 
 The following settings can be changed:
 
-     [-samfile -i]        SAM formated mapping file
-     [-fastafile -f]      Fasta file of sequences used in the mapping
-     [-enddist -e]        Reads must hit within this distance of the end to be considered an end hit (default: 500)
-     [-minlength -m]      The minimum lenght of a contig to infer closed circle (default: 3000)
-     [-avgreadlength -a]  The average readlength of the reads used to estimate read position (default: 125)
-     [-headersplit -s]    The symbol used to split the header to make the read 1 and 2 headers identical (default: _)
-     [-circoscbin -b]     The windowlength used for the circos coverage file (default: 10000)
-     [-minpesplit -p]     Minimum distance between PE reads to be considered a split pe read (default: 1000)
+[-samfile -i]        SAM formated mapping file
+[-fastafile -f]      Fasta file of sequences used in the mapping
+[-enddist -e]        Reads must hit within this distance of the end to be considered an end hit (default: 500)
+[-minlength -m]      The minimum lenght of a contig to infer closed circle (default: 3000)
+[-avgreadlength -a]  The average readlength of the reads used to estimate read position (default: 125)
+[-headersplit -s]    The symbol used to split the header to make the read 1 and 2 headers identical (default: _)
+[-circoscbin -b]     The windowlength used for the circos coverage file (default: 10000)
+[-minpesplit -p]     Minimum distance between PE reads to be considered a split pe read (default: 1000)
 
 Outputfiles:
 
