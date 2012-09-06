@@ -169,17 +169,17 @@ while ( $line = <INsam> ) {
 				}
 				else{
 					#Not end connection but still different length
-					@splitline1 = split(/$headersplit/, $splitline[0]);															  #The read header - assumes the new Illumina format! e.g. "name space 1" or "name space 2"
+					@splitline1 = split(/$headersplit/, $splitline[0]);														#The read header - assumes the new Illumina format! e.g. "name space 1" or "name space 2"
 					if (exists($reads{$splitline1[0]}) or exists($breads{$splitline1[0]})){                      											  #If one of the PE reads has already been seen then add the hit to the match hash														
 						if (exists($reads{$splitline1[0]})){						
-							@splitline2 = split(/\t/,$reads{$splitline1[0]});												  #get the contig name from the old read						
+							@splitline2 = split(/\t/,$reads{$splitline1[0]});												#get the contig name from the old read						
 							delete $reads{$splitline1[0]};
 						}
 						else{
 							@splitline2 = split(/\t/,$breads{$splitline1[0]});
 							delete $breads{$splitline1[0]};
 						}
-						if ($splitline[2] ne $splitline2[0]){                                                             #bad connection diff contigs
+						if ($splitline[2] ne $splitline2[0]){                                                               #bad connection diff contigs
 							my $tempend = $splitline[3]+1;
 							print OUTcdiff "$count $splitline[2] $splitline[3] $tempend\n";
 							$tempend = $splitline2[1]+1;
@@ -197,13 +197,13 @@ while ( $line = <INsam> ) {
 						}
 					}
 					else{								
-						$breads{$splitline1[0]} = "$splitline[2]\t$splitline[3]";										   #If the other PE read has not been seen then create the first instance of the pair
+						$breads{$splitline1[0]} = "$splitline[2]\t$splitline[3]";										    #If the other PE read has not been seen then create the first instance of the pair
 					}
 				}
 			}			
 			else{																											#here there is room for adding some general contig stats - e.g. the proportion of PE to SE reads? or the contig coverage stats																	
 			}
-			$readcount++;                                                                                                       #keep track of the number of reads look though
+			$readcount++;                                                                                                   #keep track of the number of reads look though
 			$printreadcount++;
 			if ($printreadcount == 1000000) {
 				$printreadcount = 0;
@@ -226,7 +226,7 @@ foreach my $cov (@tempcov){
 	if ($end > $contigs{$splitline[0]}){
 		$end = $contigs{$splitline[0]};
 	}
-	my $tempcov = $circoscov{$cov}/($end-$start)*$avgreadlength*2;                                 #*2 since I divided it with 2 in the beginning.. 
+	my $tempcov = $circoscov{$cov}/($end-$start)*$avgreadlength*2;                                                          #*2 since I divided it with 2 in the beginning.. 
 	print OUTccov "$splitline[0] $start $end $tempcov\n"; 
 }
 
@@ -254,20 +254,20 @@ close INfasta;
 push (@seqarray, "$seq2");	          #to catch the last sequence
 @splitline = split(/\t/,$seq2);
 $contiglength = length($splitline[1]);
-$karyotypeh{$splitline[0]}="chr - $splitline[0] $splitline[0] 0 $contiglength set1-7-qual-";                           #CHANGE THE COLOR HERE!!
+$karyotypeh{$splitline[0]}="chr - $splitline[0] $splitline[0] 0 $contiglength set1-7-qual-";                                #Change the color scheme here if needed
 foreach my $key (reverse sort {$contigs {$a} <=> $contigs {$b}} keys %contigs){
 	$contigcolor++;
-	if ($contigcolor == 8){																			    			   #CHANGE THE COLOR HERE!!
+	if ($contigcolor == 8){																			    			        #Change the color scheme here if needed
 		$contigcolor = 1;
 	}
 	print OUTckary "$karyotypeh{$key}$contigcolor\n";
 	print OUTcrules "<rule>\n";
 	print OUTcrules "condition = _CHR1_ eq ",'"',"$key",'"',"\n";
-	print OUTcrules "color = set1-7-qual-$contigcolor",'_a5',"\n";                                                     #CHANGE THE COLOR HERE!!
+	print OUTcrules "color = set1-7-qual-$contigcolor",'_a5',"\n";                                                          #Change the color scheme here if needed
 	print OUTcrules "</rule>\n";
 	
 }
-print OUTckary "\n";                      #Just to seperate for the band part of the karyotype file
+print OUTckary "\n";                                                                                                        #Just to seperate for the band part of the karyotype file
 
 
 
