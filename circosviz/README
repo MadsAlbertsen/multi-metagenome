@@ -1,6 +1,6 @@
 ----- circosviz.pl ----- :
 
-Searches for paired end (PE) reads in a given SAM file and generates overviews of where the PE reads maps to use directly in ciros. An example of the circos configuration file can be found in circosexample/etc/denovoviz.conf and example data output in circosexample/data.
+Searches for paired end (PE) reads in a given SAM file and generates overviews of where the PE reads maps to use directly in ciros. An example of the circos configuration file can be found in circosexample/etc/denovoviz.conf and example data output in circosexample/data. An example samfile and genome file can be found in /small.example.dataset. Note that the dataset does not recreate the output data given in /circosexample. 
 
 To run:
 

@@ -1,0 +1,19 @@
+A small collection of misc perl scripts:
+
+calc.gc:
+Calculates per scaffold %GC in a given fasta file.
+
+calc.kmerfreq:
+Calculates per scaffold kmer freqency in a given fasta file.
+
+extract.fasta.pe.reads.using.single:
+Extracts the subset of paired end reads in a fasta file using a fasta file of single copy reads to extract. E.g. From a set of reads associated to a subset of scaffolds all paired end reads can be extracted.
+
+extract.using.header.list:
+Extracts a subset of scaffolds in a fasta file given a list of the scaffold names to extract.
+
+extract.long.hits.from.blast:
+Extracts the longest database hit given a tabular blast report and the database.
+
+pandaseq.to.qiime:
+A script to convert pandaseq merged Illumina reads to qiime ready format.
