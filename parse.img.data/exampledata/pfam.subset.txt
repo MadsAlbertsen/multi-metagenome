@@ -1,0 +1,16 @@
+pfam00009
+pfam00679
+pfam01926
+pfam03144
+pfam00133
+pfam00579
+pfam00587
+pfam01479
+pfam00004
+pfam00070
+pfam00472
+pfam02518
+pfam03462
+pfam07992
+pfam00266
+pfam01751

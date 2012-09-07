@@ -1,0 +1,4 @@
+taxon_oid	Domain	Status	Genome Name	Phylum	Class	Order	Family	Genus	Species	Sequencing Center	Proposal Name	Genome Size	Gene Count	Pfam Count	
+637000004	Bacteria	Finished	Alcanivorax borkumensis SK2	Proteobacteria	Gammaproteobacteria	Oceanospirillales	Alcanivoracaceae	Alcanivorax	borkumensis	Bielefeld Univ	Alcanivorax borkumensis SK2	3120143	2817	2345	
+637000005	Bacteria	Finished	Alkalilimnicola ehrlichei MLHE-1	Proteobacteria	Gammaproteobacteria	Chromatiales	Ectothiorhodospiraceae	Alkalilimnicola	ehrlichei	DOE Joint Genome Institute	Arsenic/Bacillus/Clostridium	3275944	2947	2449	
+637000007	Bacteria	Finished	Anaeromyxobacter dehalogenans 2CP-C	Proteobacteria	Deltaproteobacteria	Myxococcales	Myxococcaceae	Anaeromyxobacter	dehalogenans	DOE Joint Genome Institute	Multiple Anaeromyxobacter	5013479	4421	3239	

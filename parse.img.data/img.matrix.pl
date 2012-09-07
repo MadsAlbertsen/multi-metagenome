@@ -1,10 +1,10 @@
 #!/usr/bin/env perl
 ###############################################################################
 #
-#    img.matrix.pl
+#    img.matrix.pl - version 1.0
 #
-#	 Slices and dices raw IMG data. Makes a large matrix with absence or presence
-#    of cats. Uses a genome file and a cat file to make the subset matrix.
+#	 Slices and dices raw IMG data. Generates a matrix with absence or presence
+#    of e.g. selected PFAMs across a selected number of genomes.
 #    
 #    Copyright (C) 2012 Mads Albertsen
 #
@@ -78,7 +78,7 @@ while ( my $line = <INgenomes> ) {                                              
 	chomp $line;   
 	my @splitline = split(/\t/,$line);
 	$genomecolumnsums = scalar @splitline;
-	$genome{$splitline[0]} = $line;
+	$genome{$splitline[0]} = join("\t",@splitline);
 }
 
 close INgenomes;
@@ -126,7 +126,7 @@ while ( my $filename = readdir(DIR)){                                           
 			foreach my $key (sort keys %cat){
 				$outstr = $outstr."\t".$cat{$key};
 				$cat{$key} = 0;
-				}	
+			}	
 			print OUT "$outstr\n";
 		}
 	}
@@ -137,7 +137,6 @@ close OUT;
 #If reduce flag is on then reduce by columnsum X.
 
 if ($columnsum != -1){
-	
 	open(OUT, "$outputfile") or die("Cannot create file: $outputfile\n");
 	open(OUT2, ">$outputfile".".columnsum.$columnsum.txt") or die("Cannot create file: $outputfile".".columnsum.$columnsum.txt\n");
 	my $header = 0;
@@ -151,13 +150,15 @@ if ($columnsum != -1){
 		}
 		my $count = -1;
 		foreach my $element (@splitline)  {
-			$count++;				
-			if (exists $condensed{$entry}{$count}){
-				$condensed{$entry}{$count} = $condensed{$entry}{$count}+$element;	
+			$count++;
+			if ($element ne ""){
+				if (exists $condensed{$entry}{$count}){
+					$condensed{$entry}{$count} = $condensed{$entry}{$count}+$element;				
+				}
+				else{
+					$condensed{$entry}{$count} = $element;
+				}		
 			}
-			else{
-				$condensed{$entry}{$count} = $element;
-			}		
 		}			
 	}
 	foreach my $key1 ( keys %condensed ) {
@@ -178,7 +179,7 @@ sub checkParams {
     #-----
     # Do any and all options checking here...
     #
-    my @standard_options = ( "help|h+", "incat|n:s", "outputfile|o:s","ingenomes|g:s","columnsum|c:s","category|t:s","dir|d:s","category|t:s","abundance|a:s","catcolumn|l:s");
+    my @standard_options = ( "help|h+", "incat|n:s", "outputfile|o:s","ingenomes|g:s","columnsum|c:s","category|t:s","dir|d:s","category|t:s","abundance|a:+","catcolumn|l:s");
     my %options;
 
     # Add any other command line options, and the code to handle them
@@ -216,7 +217,7 @@ __DATA__
 
 =head1 NAME
 
-    vprobes.generateprobes.pl
+    img.matrix.pl
 
 =head1 COPYRIGHT
 
@@ -241,16 +242,16 @@ __DATA__
 
 =head1 SYNOPSIS
 
-img.matrix.pl  -n -g [-a -c -d -o -t -l -h]
+img.matrix.pl  -n -g [-a -c -d -o -t -l -h] - version 1.0
 
  [-help -h]           Displays this basic usage information
  [-incat -n]          File containing e.g. PFAM names to extract from the annotation files. 
  [-category -t]       Category file identifier. E.g. pfam or cog (default: pfam).
  [-catcolumn -l]      Column in the annotation files containing the category id (default: 9).
  [-ingenomes -g]      List of genomes (taxon_oid) to extract data from.
- [-columnsum -c]      Make an condensed output using columnsum X in the genome file (default: none).
+ [-columnn -c]      Make an condensed output using columnsum X in the genome file (default: none).
  [-dir -d]            Location of the individual annotation files (default: .).
  [-outputfile -o]     Outputfile (default: outputfile.txt). 
- [-abundance -a]      Output the number of each pfam (1) instead of presence/absence (0) (default: 0). 
+ [-abundance -a]      Output the number of each pfam instead of presence/absence. 
  
 =cut

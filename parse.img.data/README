@@ -1,0 +1,26 @@
+----- img.matrix.pl ----- :
+
+Slices and dices raw IMG data. Generates a matrix with absence or presence of e.g. selected PFAMs across a selected number of genomes. A small example dataset can be found in /exampledata.
+
+The script needs "raw" IMG annotations. These can be obained for all genomes in IMG through their ftp server (e.g. ftp://ftp.jgi-psf.org/pub/IMG/img_w_v350.tar). The script needs all data in the same folder (see /exampledata). The genome.metadata.txt file can be obtained using IMG, the file in /exampledata was exported directly from IMG. The genome.metadata.txt file must contain the taxon_oid (e.g. 637000002) as the first column as it is used to select the subset of annotaion data to use (e.g. 637000002.pfam.tab.txt). The pfam.subset.txt is used to select a subset of pfams to analyse. COGs or TIGRFAMs can also be used. The -c option is very nice to condense the output to e.g. phylum level using the genome.metadata.txt file. Any column in genome.metadata.txt can be used to condense the data. 
+
+To run:
+
+img.matrix.pl  -g genome.metadata.txt -n pfam.subset.txt
+
+Additional options:
+
+ [-help -h]           Displays this basic usage information
+ [-incat -n]          File containing e.g. PFAM names to extract from the annotation files. 
+ [-category -t]       Category file identifier. E.g. pfam or cog (default: pfam).
+ [-catcolumn -l]      Column in the annotation files containing the category id (default: 9 for pfam (pfam_id)).
+ [-ingenomes -g]      List of genomes (taxon_oid) to extract data from.
+ [-columnsum -c]      Make an condensed output using column X in the genome file (default: none).
+ [-dir -d]            Location of the individual annotation files (default: .).
+ [-outputfile -o]     Outputfile (default: outputfile.txt). 
+ [-abundance -a]      Output the number of each pfam instead of presence/absence. 
+ 
+ 
+To condense the output to class level in /exampledata:
+
+img.matrix.pl  -g genome.metadata.txt -n pfam.subset.txt -c 5

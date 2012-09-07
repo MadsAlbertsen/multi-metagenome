@@ -1,10 +1,10 @@
-This folder contains small scripts to analyze and visualize metagenome assemblies.
+This folder contains scripts to analyze and visualize metagenome assemblies.
 
 circosviz:
-Given SAM file of paired-end reads mapped to a given set of scaffolds the script indicates connections between scaffolds and produces circos files for visualization.
+Given SAM file of paired-end reads mapped to a set of scaffolds the script indicates connections between scaffolds and produces circos files for visualization.
 
 cytoscapeviz:
-Given SAM file of paired-end reads mapped to a given set of scaffolds the script indicates connections between scaffolds and produces cytoscape files for visualization.
+Given SAM file of paired-end reads mapped to a set of scaffolds the script indicates connections between scaffolds and produces cytoscape files for visualization.
 
 misc.scripts:
 Small scripts used to e.g. calculate kmer frequency of scaffolds.
