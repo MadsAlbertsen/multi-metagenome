@@ -77,7 +77,7 @@ print "$count sequences to extract.\n";
 
 
 open(INseq, $insequences) or die("Cannot read file: $insequences\n");
-open(OUT, ">$insequences.subset.fa") or die("Cannot create file: $insequences.subset.fa\n");
+open(OUT, ">$outputfile") or die("Cannot create file: $outputfile\n");
 
 while ( my $line = <INseq> ) {
 	chomp $line; 

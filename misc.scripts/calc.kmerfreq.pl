@@ -49,7 +49,7 @@ my $split;
 
 $fastafile = &overrideDefault("inputfile.fasta",'fastafile');
 $outfile = &overrideDefault("outfile.tab",'outfile');
-$minlength = &overrideDefault("10000",'minlength');
+$minlength = &overrideDefault("500",'minlength');
 $kmerlength = &overrideDefault("4",'kmer');
 $split = &overrideDefault("0",'split');
 
@@ -58,7 +58,7 @@ my $header;
 my $seq;
 my $prevheader;
 my $subseq;
-my $sequence;
+my $sequence = "AAA";
 my $count = -1;
 my $printreadcount = 0;
 my $seqcount = 0;
@@ -193,13 +193,14 @@ while ( my $line = <IN> ) {
 		}
 		$sequence = "";	
 		$header = $line;
-		$output = $header;						
-		$seqcount++;
-		$printreadcount++;
+		$header =~ s/>//;
+		$output = $header;									
 		if ($printreadcount == 100) {
 			$printreadcount = 0;
 			print "$seqcount sequences $seqcountgood \>= $minlength bp\n";
-		}
+		}	
+		$seqcount++;		
+		$printreadcount++;		
 	}	
 	else{		
 		$sequence = $sequence.$line;
@@ -311,7 +312,7 @@ script.pl  -i [-h -o -m -k]
  [-help -h]           Displays this basic usage information
  [-fastafile -i]      Input fastafile file. 
  [-outputfile -o]     Outputfile. Tab separated tetranucleotide frequency.
- [-minlength -m]      Minimum contig length to use for calculations (default: 10.000).
+ [-minlength -m]      Minimum contig length to use for calculations (default: 500).
  [-kmer -k]           kmer length (default: 4).
  [-split -s]          Split sequences in subsequences of length -s (default: no split).
  

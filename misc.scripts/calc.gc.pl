@@ -59,7 +59,7 @@ my %counts;
 	
 open(IN, $inputfile) or die;
 open(OUT, ">$outputfile") or die;
-
+print OUT "contig\tgc\n";
 
 while (my $line = <IN>)  {
 	if ($line =~ m/>/) {
@@ -88,7 +88,8 @@ foreach my $sequence (@array){
 			$counts{$nucleotide}++;
 		}
 	my $gc = ($counts{G}+$counts{C})/($counts{G}+$counts{C}+$counts{A}+$counts{T})*100;
-	print OUT "$tseq[0]\t$gc\n";
+	$tseq[0] =~ s/>//;
+	print OUT "$tseq[0]\t",sprintf("%.2f",$gc),"\n";
 }
 
 close IN;
