@@ -1,76 +1,64 @@
 <rule>
-condition = _CHR1_ eq "contig4"
+condition = _CHR1_ eq "NODE_11_length_207389_cov_20.800173"
 color = set1-7-qual-1_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig3"
+condition = _CHR1_ eq "NODE_6_length_123590_cov_19.847990"
 color = set1-7-qual-2_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig2"
+condition = _CHR1_ eq "NODE_5_length_120262_cov_20.250687"
 color = set1-7-qual-3_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig11"
+condition = _CHR1_ eq "NODE_18_length_113582_cov_18.909678"
 color = set1-7-qual-4_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig8"
+condition = _CHR1_ eq "NODE_8_length_76118_cov_21.265181"
 color = set1-7-qual-5_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig9"
+condition = _CHR1_ eq "NODE_3_length_58172_cov_22.135443"
 color = set1-7-qual-6_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig6"
+condition = _CHR1_ eq "NODE_7_length_45975_cov_18.186646"
 color = set1-7-qual-7_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig7"
+condition = _CHR1_ eq "NODE_1_length_39106_cov_19.675804"
 color = set1-7-qual-1_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig15"
+condition = _CHR1_ eq "NODE_14_length_37447_cov_19.476460"
 color = set1-7-qual-2_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig10"
+condition = _CHR1_ eq "NODE_9_length_33879_cov_19.380974"
 color = set1-7-qual-3_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig17"
+condition = _CHR1_ eq "NODE_4_length_27331_cov_18.265047"
 color = set1-7-qual-4_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig14"
+condition = _CHR1_ eq "NODE_13_length_23104_cov_17.959833"
 color = set1-7-qual-5_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig13"
+condition = _CHR1_ eq "NODE_2_length_23013_cov_23.495808"
 color = set1-7-qual-6_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig16"
+condition = _CHR1_ eq "NODE_15_length_2568_cov_16.217289"
 color = set1-7-qual-7_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig1"
+condition = _CHR1_ eq "NODE_10_length_1095_cov_41.674885"
 color = set1-7-qual-1_a5
 </rule>
 <rule>
-condition = _CHR1_ eq "contig19"
+condition = _CHR1_ eq "NODE_12_length_949_cov_73.054794"
 color = set1-7-qual-2_a5
-</rule>
-<rule>
-condition = _CHR1_ eq "contig12"
-color = set1-7-qual-3_a5
-</rule>
-<rule>
-condition = _CHR1_ eq "contig5"
-color = set1-7-qual-4_a5
-</rule>
-<rule>
-condition = _CHR1_ eq "contig18"
-color = set1-7-qual-5_a5
 </rule>

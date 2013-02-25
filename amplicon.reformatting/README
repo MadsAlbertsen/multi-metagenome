@@ -1,0 +1,2 @@
+pandaseq.to.qiime:
+A script to convert pandaseq merged Illumina reads to qiime ready format.
