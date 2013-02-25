@@ -1,13 +1,7 @@
-This folder contains scripts to analyze and visualize metagenome assemblies.
+This folder contains scripts to analyze and visualize metagenome assemblies as described in Albertsen et al., 2003 (article link).
 
-circosviz:
-Given SAM file of paired-end reads mapped to a set of scaffolds the script indicates connections between scaffolds and produces circos files for visualization.
+The various scripts are arranged in subfolders based on usage.
 
-cytoscapeviz:
-Given SAM file of paired-end reads mapped to a set of scaffolds the script indicates connections between scaffolds and produces cytoscape files for visualization.
+"Metagenome assembly guide v. 1.0" documents step-by-step how to extract complete genomes from metagenomes.
 
-misc.scripts:
-Small scripts used to e.g. calculate kmer frequency of scaffolds.
-
-parse.img.data:
-A script used to investigate e.g. phylum level occurance of PFAMs in all available genomes by the use of raw IMG annotations.
+02/2013 - Mads Albertsen - contact: ma at bio dot aau dot dk

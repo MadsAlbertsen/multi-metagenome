@@ -1,3 +1,5 @@
-Reassembly
+This folder contains all scripts needed for data reassembly. See "Metagenome assembly guide v. 1.0" for detailed useage.
 
-Something
+extract.fasta.from.sam.using.list.pl: Given a list of scaffolds extracts all associated reads from a SAM file.
+
+extract.fasta.pe.using.single.pl: Given a set of reads extracts the paired-end reads from the original dataset.

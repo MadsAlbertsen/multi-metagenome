@@ -1,3 +1,16 @@
-R.data.generation
+This folder contains all scripts needed for data generation for R. See "Metagenome assembly guide v. 1.0" for detailed useage.
 
-Something
+calc.gc.pl: Calculate gc content in a set of scaffolds given a fasta file as input.
+
+calc.kmerfreq.pl: Calculate kmer frequency in a set of scaffolds given a fasta file as input.
+
+extract.using.header.list.pl: Given a list of scaffold names extracts the scaffolds from a fasta file containing the subset.
+
+hmm.majority.vote.pl: Given a MEGAN taxonomy file aggregates the results from protein level to scaffold level.
+
+essential.hmm: 100+ HMM models of essential single copy genes conserved in >95% of all bacteria.
+
+workflow.R.data.generation.sh: Shell script that wraps the above steps.
+
+metagenome.workflow.R: Detailed R script/guide to extract genome bins from metagenome assemblies. Uses the data generated through the scripts in this folder.
+

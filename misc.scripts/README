@@ -1,4 +1,3 @@
 A small collection of misc perl scripts:
 
-extract.long.hits.from.blast:
-Extracts the longest database hit given a tabular blast report and the database.
+extract.long.hits.from.blast: Extracts the longest database hit given a tabular blast report and the database.

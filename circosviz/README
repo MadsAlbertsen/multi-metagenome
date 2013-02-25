@@ -1,3 +1,5 @@
+This folder contains all scripts needed for Circos analysis of genome assemblies. See "Metagenome assembly guide v. 1.0" for detailed useage.
+
 ----- circosviz.pl ----- :
 
 Searches for paired end (PE) reads in a given SAM file and generates overviews of where the PE reads maps to use directly in ciros. An example of the circos configuration file can be found in circosexample/etc/denovoviz.conf and example data output in circosexample/data. An example samfile and genome file can be found in /small.example.dataset. Note that the dataset does not recreate the output data given in /circosexample. 
@@ -41,3 +43,7 @@ E.g the sam file might look as:
 @PG	ID:0	PN:clcgenomicswb	VN:5.0
 HWI-ST1040:48:c06lnacxx:2:1101:7493:111092_1:N:0:CAGATC	0	contig1	373	60	100M	*	0	0	CCTCGCTCAAGATACCGGCCTAGAATCCGAGTTATCGATTTGGGATGAGATGCTGACAGTATTTGACCCGCTTTTAAAAATGGAAAAAAGACTAAGAGAG	@CCFFFDFHHGHHIDIIEGHEHGEHIGIGFHGHIIGIGGHGIJJC@ACHIIIFDIGFHGAEEFDFCCDFDDDBBDCDCDDDDDCDDDDD>?CCDDDDCC@	NH:i:1
 HWI-ST1040:48:c06lnacxx:2:1101:7493:111092_2:N:0:CAGATC	16	contig1	615	60	100M	*	0	0	CAGGCCTTCATTTTGACTCTTATGACTATCAAACAAAAATCCAAACGCTAAGCGGCGGGCAGAAAACAAGACTAGCCCTTGGTAAACTATTATTAACCAA	?>81C>CCDDCCC>:5>CDCADADCDDDCCDC@>EDDBFEBEECGBF=4@BIHGHEEGGHEFJHIIJIGGHHHGIIIJIJJJIHEHGHGHFDFDDDFCC@	NH:i:1
+
+The folder "/small.example.dataset" contains a small SAM file and fasta file as a testing dataset.
+
+The folder "/circosexample" contains an complete example including configuration files for Circos.

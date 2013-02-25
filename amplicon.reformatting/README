@@ -1,2 +1,4 @@
+This folder contains all scripts needed for reformarring of merged reads after pandaseq to qiime ready format. See "Metagenome assembly guide v. 1.0" for detailed useage.
+
 pandaseq.to.qiime:
 A script to convert pandaseq merged Illumina reads to qiime ready format.
