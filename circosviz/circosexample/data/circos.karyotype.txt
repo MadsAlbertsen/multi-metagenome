@@ -1,2 +1,16 @@
-chr - 1.TM7.1 1.TM7.1 0 1013781 set1-7-qual-1
+chr - 2.TM7.2 2.TM7.2 0 206839 set1-7-qual-1
+chr - 2.TM7.6 2.TM7.6 0 189856 set1-7-qual-2
+chr - 2.TM7.5 2.TM7.5 0 139294 set1-7-qual-3
+chr - 2.TM7.4 2.TM7.4 0 126386 set1-7-qual-4
+chr - 2.TM7.7 2.TM7.7 0 81590 set1-7-qual-5
+chr - 2.TM7.9 2.TM7.9 0 76836 set1-7-qual-6
+chr - 2.TM7.8 2.TM7.8 0 55654 set1-7-qual-7
+chr - 2.TM7.11 2.TM7.11 0 51540 set1-7-qual-1
+chr - 2.TM7.10 2.TM7.10 0 34001 set1-7-qual-2
+chr - 2.TM7.1 2.TM7.1 0 5346 set1-7-qual-3
+chr - 2.TM7.15 2.TM7.15 0 2375 set1-7-qual-4
+chr - 2.TM7.14 2.TM7.14 0 2067 set1-7-qual-5
+chr - 2.TM7.13 2.TM7.13 0 1193 set1-7-qual-6
+chr - 2.TM7.12 2.TM7.12 0 1047 set1-7-qual-7
+chr - 2.TM7.3 2.TM7.3 0 645 set1-7-qual-1
 

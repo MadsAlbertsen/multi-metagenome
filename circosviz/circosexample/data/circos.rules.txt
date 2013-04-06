@@ -1,4 +1,60 @@
 <rule>
-condition = _CHR1_ eq "1.TM7.1"
+condition = _CHR1_ eq "2.TM7.2"
+color = set1-7-qual-1_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.6"
+color = set1-7-qual-2_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.5"
+color = set1-7-qual-3_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.4"
+color = set1-7-qual-4_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.7"
+color = set1-7-qual-5_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.9"
+color = set1-7-qual-6_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.8"
+color = set1-7-qual-7_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.11"
+color = set1-7-qual-1_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.10"
+color = set1-7-qual-2_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.1"
+color = set1-7-qual-3_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.15"
+color = set1-7-qual-4_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.14"
+color = set1-7-qual-5_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.13"
+color = set1-7-qual-6_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.12"
+color = set1-7-qual-7_a5
+</rule>
+<rule>
+condition = _CHR1_ eq "2.TM7.3"
 color = set1-7-qual-1_a5
 </rule>

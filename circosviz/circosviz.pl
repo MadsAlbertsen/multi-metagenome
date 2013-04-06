@@ -398,22 +398,22 @@ if ($frc ne "N"){
 	while ( my $line = <INfrc> ) {
 		chomp $line;   	
 		next if ($line =~ m/#/);
-		my @splitline = split(/\t/,$line);
-		if ($line =~ m/STRECH_PE/) {$splitline[2] = 1};
-		if ($line =~ m/COMPR_PE/) {$splitline[2] = 2};
-		if ($line =~ m/LOW_NORM_COV_PE/) {$splitline[2] = 3};
-		if ($line =~ m/LOW_COV_PE/) {$splitline[2] = 4};
-		if ($line =~ m/HIGH_COV_PE/) {$splitline[2] = 5};
-		if ($line =~ m/HIGH_NORM_COV_PE/) {$splitline[2] = 6};
-		if ($line =~ m/HIGH_OUTIE_PE/) {$splitline[2] = 7};
-		if ($line =~ m/HIGH_SINGLE_PE/) {$splitline[2] = 8};
-		if ($line =~ m/HIGH_SPAN_PE/) {$splitline[2] = 9};
-		if ($line =~ m/COMPR_MP/) {$splitline[2] = 10};
-		if ($line =~ m/HIGH_OUTIE_MP/) {$splitline[2] = 11};
-		if ($line =~ m/HIGH_SINGLE_MP/) {$splitline[2] = 12};
-		if ($line =~ m/HIGH_SPAN_MP/) {$splitline[2] = 13};
-		if ($line =~ m/STRECH_MP/) {$splitline[2] = 14};
-		print OUTfrc "$splitline[0] $splitline[3] $splitline[4] $splitline[2]\n";
+		my @splitline = split(/ /,$line);
+		if ($line =~ m/STRECH_PE/) {$splitline[1] = 1};
+		if ($line =~ m/COMPR_PE/) {$splitline[1] = 2};
+		if ($line =~ m/LOW_NORM_COV_PE/) {$splitline[1] = 3};
+		if ($line =~ m/LOW_COV_PE/) {$splitline[1] = 4};
+		if ($line =~ m/HIGH_COV_PE/) {$splitline[1] = 5};
+		if ($line =~ m/HIGH_NORM_COV_PE/) {$splitline[1] = 6};
+		if ($line =~ m/HIGH_OUTIE_PE/) {$splitline[1] = 7};
+		if ($line =~ m/HIGH_SINGLE_PE/) {$splitline[1] = 8};
+		if ($line =~ m/HIGH_SPAN_PE/) {$splitline[1] = 9};
+		if ($line =~ m/COMPR_MP/) {$splitline[1] = 10};
+		if ($line =~ m/HIGH_OUTIE_MP/) {$splitline[1] = 11};
+		if ($line =~ m/HIGH_SINGLE_MP/) {$splitline[1] = 12};
+		if ($line =~ m/HIGH_SPAN_MP/) {$splitline[1] = 13};
+		if ($line =~ m/STRECH_MP/) {$splitline[1] = 14};
+		print OUTfrc "$splitline[0] $splitline[2] $splitline[3] $splitline[1]\n";
 	}
 	close INfrc;
 	close OUTfrc;
