@@ -52,6 +52,7 @@ my $avgreadlength;
 my $headersplit;
 my $circoscbin;
 my $minpesplit;
+my $frc;
 
 $samfile = &overrideDefault("data.sam",'samfile');
 $fastafile = &overrideDefault("data.fasta",'fastafile');
@@ -61,6 +62,7 @@ $avgreadlength = &overrideDefault("126",'avgreadlength');
 $headersplit = &overrideDefault("_",'headersplit');
 $circoscbin = &overrideDefault("10000",'circoscbin');
 $minpesplit = &overrideDefault("1000",'minpesplit');
+$frc = &overrideDefault("N",'frc');
 
 my $line;
 my $old;
@@ -95,6 +97,9 @@ my %breads;
 my %connections;
 my %contigswhit;
 my %circoscov;
+my %circoscovE;
+my %circoscovD;
+my %circoscovS;
 my %counts;
 my %karyotypeh;
 
@@ -109,6 +114,9 @@ open(OUTcdiff, ">circos.dcontigs.txt") or die("Cannot create circos.dcontigs.txt
 open(OUTcsamewl, ">circos.scontigs.wl.txt") or die("Cannot create circos.scontigs.wl.txt\n");   
 open(OUTckary, ">circos.karyotype.txt") or die("Cannot create circos.karyotype.txt\n");   
 open(OUTccov, ">circos.coverage.txt") or die("Cannot create circos.coverage.txt\n");   
+open(OUTccovE, ">circos.count.ends.txt") or die("Cannot create circos.coverageE.txt\n");   
+open(OUTccovD, ">circos.count.dcontigs.txt") or die("Cannot create circos.coverageD.txt\n");   
+open(OUTccovS, ">circos.count.scontigs.wl.txt") or die("Cannot create circos.coverageS.txt\n");   
 open(OUTcgc, ">circos.gc.txt") or die("Cannot create circos.gc.txt\n");   
 open(OUTcrules, ">circos.rules.txt") or die("Cannot create circos.rules.txt\n");   
 
@@ -139,26 +147,47 @@ while ( $line = <INsam> ) {
 			my $covbin = floor($splitline[3]/$circoscbin);
 			$contigcov{$splitline[2]}++;	
 			my $tempcovbin = $splitline[2].":".$covbin;
-			$circoscov{$tempcovbin}++;			
+			$circoscov{$tempcovbin}++;	
+			@splitline1 = split(/$headersplit/, $splitline[0]);															  #The read header - assumes the new Illumina format! e.g. "name space 1" or "name space 2"		
 			if ($splitline[1] != 19 and $splitline[1] != 35){															  #SAM Flags that indicate that these PE reads are maping as they are supposed to.. hence they are not interesting..																									#Between diferent contigs? Between the same contig - e.g check if plasmid.
-				if (($splitline[3]+$avgreadlength) <= $enddist or ($splitline[3]+$avgreadlength) >= ($contigs{$splitline[2]}-$enddist)) {            #The read is required to hit within a certain distance from the contigs ends.. The middle postition of the read is used
-					@splitline1 = split(/$headersplit/, $splitline[0]);															  #The read header - assumes the new Illumina format! e.g. "name space 1" or "name space 2"
+				if ((($splitline[3]+$avgreadlength) <= $enddist or ($splitline[3]+$avgreadlength) >= ($contigs{$splitline[2]}-$enddist))  and !exists($breads{$splitline1[0]})) {            #The read is required to hit within a certain distance from the contigs ends.. The middle postition of the read is used
 					if (exists($reads{$splitline1[0]})){                      											  #If one of the PE reads has already been seen then add the hit to the match hash														
 						@splitline2 = split(/\t/,$reads{$splitline1[0]});	
 						delete $reads{$splitline1[0]};
 						if ($splitline[2] ne $splitline2[0]){                                                             #Good connection diff contigs
 							my $tempend = $splitline[3]+1;
 							print OUTcends "$count $splitline[2] $splitline[3] $tempend\n";
-							$tempend = $splitline2[1]+1;
+							my $tempcovbin2 = $tempcovbin;
+							if ($covbin != 0){
+									$tempcovbin2 = $splitline[2].":1";
+								}
+							$circoscovE{$tempcovbin2}++;
+							$tempend = $splitline2[1]+1;	
 							print OUTcends "$count $splitline2[0] $splitline2[1] $tempend\n";	
+							$tempcovbin2 = $splitline2[0].":0";
+							if (floor($splitline2[1]/$circoscbin) != 0){
+								$tempcovbin2 = $splitline2[0].":1";
+							}
+							$circoscovE{$tempcovbin2}++;								
 							$countcends++;
+							
 						}
 						else{			                                                                                  
 							if ($contigs{$splitline2[0]} >= $minlength and abs($splitline[3]-$splitline2[1])>= $minpesplit){   #Good circular connection								
 								my $tempend = $splitline[3]+1;
 								print OUTcends "$count $splitline[2] $splitline[3] $tempend\n";
+								my $tempcovbin2 = $tempcovbin;
+								if ($covbin != 0){
+									$tempcovbin2 = $splitline[2].":1";
+								}
+								$circoscovE{$tempcovbin2}++;
 								$tempend = $splitline2[1]+1;
 								print OUTcends "$count $splitline2[0] $splitline2[1] $tempend\n";
+								$tempcovbin2 = $splitline2[0].":0";
+								if (floor($splitline2[1]/$circoscbin) != 0){
+									$tempcovbin2 = $splitline2[0].":1";
+								}
+								$circoscovE{$tempcovbin2}++;									
 								$countcends++;
 							}
 						}
@@ -170,7 +199,7 @@ while ( $line = <INsam> ) {
 				else{
 					#Not end connection but still different length
 					@splitline1 = split(/$headersplit/, $splitline[0]);														#The read header - assumes the new Illumina format! e.g. "name space 1" or "name space 2"
-					if (exists($reads{$splitline1[0]}) or exists($breads{$splitline1[0]})){                      											  #If one of the PE reads has already been seen then add the hit to the match hash														
+					if (exists($reads{$splitline1[0]}) or exists($breads{$splitline1[0]})){                      			 #If one of the PE reads has already been seen then add the hit to the match hash														
 						if (exists($reads{$splitline1[0]})){						
 							@splitline2 = split(/\t/,$reads{$splitline1[0]});												#get the contig name from the old read						
 							delete $reads{$splitline1[0]};
@@ -182,22 +211,29 @@ while ( $line = <INsam> ) {
 						if ($splitline[2] ne $splitline2[0]){                                                               #bad connection diff contigs
 							my $tempend = $splitline[3]+1;
 							print OUTcdiff "$count $splitline[2] $splitline[3] $tempend\n";
+							$circoscovD{$tempcovbin}++;
 							$tempend = $splitline2[1]+1;
-							print OUTcdiff "$count $splitline2[0] $splitline2[1] $tempend\n";	
-							$countcdiff++;
+							print OUTcdiff "$count $splitline2[0] $splitline2[1] $tempend\n";
+							my $tempcovbin2 = $splitline2[0].":".floor($splitline2[1]/$circoscbin);
+							$circoscovD{$tempcovbin2}++;	
+							$countcdiff++;			
 						}
 						else{			                                                                                  
 							if ($contigs{$splitline2[0]} >= $minlength and abs($splitline[3]-$splitline2[1])>= $minpesplit){   #bad same connection								
 								my $tempend = $splitline[3]+1;
 								print OUTcsamewl "$count $splitline[2] $splitline[3] $tempend\n";
 								$tempend = $splitline2[1]+1;
+								$circoscovS{$tempcovbin}++;
 								print OUTcsamewl "$count $splitline2[0] $splitline2[1] $tempend\n";
+								my $tempcovbin2 = $splitline2[0].":".floor($splitline2[1]/$circoscbin);
+								$circoscovS{$tempcovbin2}++;
 								$countcsamewl++;
+								
 							}
 						}
 					}
 					else{								
-						$breads{$splitline1[0]} = "$splitline[2]\t$splitline[3]";										    #If the other PE read has not been seen then create the first instance of the pair
+						$breads{$splitline1[0]} = "$splitline[2]\t$splitline[3]";										    #If the other PE read has not been seen then create the first instance of the pair -
 					}
 				}
 			}			
@@ -229,6 +265,45 @@ foreach my $cov (@tempcov){
 	my $tempcov = $circoscov{$cov}/($end-$start)*$avgreadlength*2;                                                          #*2 since I divided it with 2 in the beginning.. 
 	print OUTccov "$splitline[0] $start $end $tempcov\n"; 
 }
+
+@tempcov = keys %circoscovE;
+@tempcov = sort @tempcov;
+foreach my $cov (@tempcov){
+	my @splitline = split(/:/,$cov);	
+	my $start = $splitline[1]*$circoscbin;
+	my $end = $enddist;
+	if ($splitline[1] == 1){
+		$start = $contigs{$splitline[0]} - $enddist;
+		$end = $contigs{$splitline[0]};		
+	}		
+	print OUTccovE "$splitline[0] $start $end $circoscovE{$cov}\n"; 
+}
+
+@tempcov = keys %circoscovD;
+@tempcov = sort @tempcov;
+foreach my $cov (@tempcov){
+	my @splitline = split(/:/,$cov);	
+	my $start = $splitline[1]*$circoscbin;
+	my $end = ($splitline[1]+1)*$circoscbin;
+	if ($end > $contigs{$splitline[0]}){
+		$end = $contigs{$splitline[0]};
+	}
+	print OUTccovD "$splitline[0] $start $end $circoscovD{$cov}\n"; 
+}
+
+@tempcov = keys %circoscovS;
+@tempcov = sort @tempcov;
+foreach my $cov (@tempcov){
+	my @splitline = split(/:/,$cov);	
+	my $start = $splitline[1]*$circoscbin;
+	my $end = ($splitline[1]+1)*$circoscbin;
+	if ($end > $contigs{$splitline[0]}){
+		$end = $contigs{$splitline[0]};
+	}
+	print OUTccovS "$splitline[0] $start $end $circoscovS{$cov}\n"; 
+}
+
+
 
 print "Generating karyotype file based on fasta file.\n";
 
@@ -316,6 +391,35 @@ foreach my $sequence (@seqarray){
 	print OUTcgc "$tseq[0] $lastend $lengthcount $gc\n";	
 }
  
+
+if ($frc ne "N"){
+	open(INfrc, $frc) or die("Cannot open $frc\n");
+	open(OUTfrc, ">frc.tracks.txt") or die("Cannot create frc.tracks.txt\n");   
+	while ( my $line = <INfrc> ) {
+		chomp $line;   	
+		next if ($line =~ m/#/);
+		my @splitline = split(/\t/,$line);
+		if ($line =~ m/STRECH_PE/) {$splitline[2] = 1};
+		if ($line =~ m/COMPR_PE/) {$splitline[2] = 2};
+		if ($line =~ m/LOW_NORM_COV_PE/) {$splitline[2] = 3};
+		if ($line =~ m/LOW_COV_PE/) {$splitline[2] = 4};
+		if ($line =~ m/HIGH_COV_PE/) {$splitline[2] = 5};
+		if ($line =~ m/HIGH_NORM_COV_PE/) {$splitline[2] = 6};
+		if ($line =~ m/HIGH_OUTIE_PE/) {$splitline[2] = 7};
+		if ($line =~ m/HIGH_SINGLE_PE/) {$splitline[2] = 8};
+		if ($line =~ m/HIGH_SPAN_PE/) {$splitline[2] = 9};
+		if ($line =~ m/COMPR_MP/) {$splitline[2] = 10};
+		if ($line =~ m/HIGH_OUTIE_MP/) {$splitline[2] = 11};
+		if ($line =~ m/HIGH_SINGLE_MP/) {$splitline[2] = 12};
+		if ($line =~ m/HIGH_SPAN_MP/) {$splitline[2] = 13};
+		if ($line =~ m/STRECH_MP/) {$splitline[2] = 14};
+		print OUTfrc "$splitline[0] $splitline[3] $splitline[4] $splitline[2]\n";
+	}
+	close INfrc;
+	close OUTfrc;
+}
+
+
 ########################### Print stats#################################
 
 print "Total number of reads\n";
@@ -334,6 +438,9 @@ close OUTcdiff;
 close OUTcsamewl;
 close OUTckary;
 close OUTccov;	
+close OUTccovE;	
+close OUTccovD;	
+close OUTccovS;	
 close OUTcgc;	
 close OUTcrules;	
 
@@ -346,7 +453,7 @@ sub checkParams {
     #-----
     # Do any and all options checking here...
     #
-    my @standard_options = ( "help|h+", "samfile|i:s","fastafile|f:s", "enddist|e:s", "minlength|m:s", "avgreadlength|a:s", "headersplit|s:s", "circoscbin|b:s", "minpesplit|p:s" );
+    my @standard_options = ( "help|h+", "samfile|i:s","fastafile|f:s", "enddist|e:s", "minlength|m:s", "avgreadlength|a:s", "headersplit|s:s", "circoscbin|b:s", "minpesplit|p:s", "frc|g:s" );
     my %options;
 
     # Add any other command line options, and the code to handle them
@@ -410,7 +517,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
-circosviz.pl  -i -f [-e -m -a -s -b -p ] : version 1.0
+circosviz.pl  -i -f [-e -m -a -s -b -p -g] : version 1.0
 
  [-help -h]           Displays this basic usage information
  [-samfile -i]        SAM formated mapping file
@@ -421,5 +528,5 @@ circosviz.pl  -i -f [-e -m -a -s -b -p ] : version 1.0
  [-headersplit -s]    The symbol used to split the header to make the read 1 and 2 headers identical (default: _)
  [-circoscbin -b]     The windowlength used for the circos coverage file (default: 10000) 
  [-minpesplit -p]     Minimum distance between PE reads to be considered a split pe read (default: 1000)
- 	  
+ [-frc -g]            Add FRCbam Features using the Feature.gff output of FRCbam 	  
 =cut
