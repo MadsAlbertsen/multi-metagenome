@@ -142,7 +142,7 @@ while ( $line = <INsam> ) {
 			$numcontigs++;
 		}	
 	else {
-		if ($line !~ m/(\@PG|\@HD|\@SQ)/) { 
+		if ($line !~ m/(\@PG|\@HD|\@SQ|\@RG)/) { 
 			@splitline = split(/\t/, $line);
 			my $covbin = floor($splitline[3]/$circoscbin);
 			$contigcov{$splitline[2]}++;	
