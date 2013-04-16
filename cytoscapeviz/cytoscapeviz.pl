@@ -128,7 +128,7 @@ while ( $line = <IN> ) {
 			$contigcov{$contigname[1]} = 0;
 		}	
 	else {
-		if ($line !~ m/(\@PG|\@HD|\@SQ)/) { 
+		if ($line !~ m/(\@PG|\@HD|\@SQ|\@RG)/) { 
 			@splitline = split(/\t/, $line); 
 			$start = 0;
 			$contigcov{$splitline[2]}++;
