@@ -26,7 +26,7 @@ perl multi-metagenome/R.data.generation/calc.gc.pl -i assembly.fa -o assembly.gc
 
 echo ""
 echo "Finding essential genes - Predicting proteins (Prodigal)"
-/space/users/malber06/prodigal/prodigal.v2_60/prodigal -a temp.orfs.faa -i assembly.fa -m -o temp.txt -p meta -q
+prodigal -a temp.orfs.faa -i assembly.fa -m -o temp.txt -p meta -q
 cut -f1 -d " " temp.orfs.faa > assembly.orfs.faa
 
 echo ""

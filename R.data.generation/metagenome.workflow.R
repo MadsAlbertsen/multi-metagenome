@@ -97,6 +97,7 @@ max(d$length)             #max scaffold length (bp)
 ### Coverage plots - Colored by GC ################################################################
 # Define a good color palette and make it transparrent
 gbr<-colorRampPalette(c("green","blue","orange","red"))
+gcspan <- round(max(d$gc)-min(d$gc)+1)
 palette(adjustcolor(gbr(70), alpha.f = 0.1))
 
 plot(x = d$HPminus,
@@ -104,7 +105,7 @@ plot(x = d$HPminus,
      log="xy",
      cex = sqrt(d$length)/100,
      pch=20,
-     col=d$gc-25,
+     col=d$gc-min(d$gc),
      xlim = c(7,5000), 
      ylim = c(0.005,5000),
      xlab = "Coverage HP-",
@@ -129,22 +130,12 @@ legend(x = 7,
        )
 
 # Add gc legend
-par(new=T,plt=c(0.27,0.31,0.80,0.87))
+for (i in 1:5){
+  par(new=T,plt=c(0.27,0.31,0.80,0.87))
+  barplot(rep(1,gcspan), col=1:gcspan, axes=FALSE, space=0,border=NA,  horiz=TRUE)
+}
 
-barplot(rep(5,50),
-        col=1:50,
-        axes=FALSE,
-        space=0,border=NA,
-        horiz=TRUE,
-        )
-
-axis(2,c(0,25,50),
-     c(25,50,75),
-     las=2,
-     cex.axis=0.75,
-     hadj=0.25,
-     tck=-0.15,
-     )
+axis(2,c(0,gcspan/2,gcspan), c(round(min(d$gc)),round(min(d$gc)+(max(d$gc)-min(d$gc))/2),round(max(d$gc))), las=2, cex.axis=0.75, hadj=0.25, tck=-0.15)
 
 mtext("% GC",side=3, line = 0,cex=0.75)
 
@@ -277,11 +268,11 @@ g2d.a <- z.def
 g2e.a <- e.out
 
 # Plot the 5 most imortant components of the CA analysis
-palette(adjustcolor(gbr(70), alpha.f = 0.5))
+palette(adjustcolor(gbr(gcspan), alpha.f = 0.5))
 pairs(g.out[,9:13],
       cex = sqrt(g.out$length)/100, 
       pch=20, 
-      col=g.out$gc-25
+      col=g.out$gc-min(d$gc)
       )
 
 # Plot the combination of components that gives the highest resolution
@@ -289,7 +280,7 @@ plot(x = g.out$CA1,
      y = g.out$CA2, 
      cex = sqrt(g.out$length)/100,
      pch = 20,
-     col = g.out$gc-25,
+     col = g.out$gc--min(d$gc),
      xlab = "CA1",
      ylab = "CA2"
      )
@@ -336,7 +327,7 @@ plot(x = g.out$CA1,
      y = g.out$CA2, 
      cex = sqrt(g.out$length)/100,
      pch = 20,
-     col = g.out$gc-25,
+     col = g.out$gc--min(d$gc),
      xlab = "CA1",
      ylab = "CA2"
 )
