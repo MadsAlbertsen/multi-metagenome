@@ -9,7 +9,7 @@ This project contains scripts to analyze and visualize metagenome assemblies as 
 Some text
 
 
-## Scripts used for extracting individual genomes from metagenomes
+## Scripts used for extracting of individual genomes from metagenomes
 ### R.data.generation
 
 ### circosviz
