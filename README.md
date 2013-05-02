@@ -19,21 +19,4 @@ A small shell script can be found in [R.data.generation] that wraps the individu
 
 The R part of the step-by-step guide is also available as a seperate tutorial in R markdown format, which generates the main figures used in the article. Check it out HERE (add link).
 
-## Scripts used for extraction of individual genomes from metagenomes
-### R.data.generation
-Some text
-### circosviz
-Some text
-### cytoscapeviz
-Some text
-### reassembly
-Some text
-
-## Other scripts used in the article
-### misc.scripts
-Some text
-### parse.img.data
-Some text
-### amplicon.reformatting
-Some text
 05/2013 - Mads Albertsen - contact: ma at bio dot aau dot dk
