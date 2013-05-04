@@ -43,10 +43,12 @@ my $global_options = checkParams();
 my $inputfile;
 my $outputfile;
 my $noNA;
+my $level;
 
 $inputfile = &overrideDefault("inputfile.txt",'inputfile');
 $outputfile = &overrideDefault("outputfile.txt",'outputfile');
 $noNA = &overrideDefault(0,'noNA');
+$level = &overrideDefault(3,'level');
 
 my %contigp;
 my %color;
@@ -65,18 +67,18 @@ while ( my $line = <IN> ) {
 	my @splitline1 = split(/;/,$splitline[1]);
 	my @splitline2 = split(/_/,$splitline[0]);
 	if (!exists($contigp{$splitline2[0]})){
-		if (exists($splitline1[3])){
-			$contigp{$splitline2[0]} = "$splitline1[3]"; 
-			$color{$splitline1[3]}++
+		if (exists($splitline1[$level])){
+			$contigp{$splitline2[0]} = "$splitline1[$level]"; 
+			$color{$splitline1[$level]}++
 		}
 		else{
 			$contigp{$splitline2[0]} = "NA";
 		}
 	}
 	else{
-		if (exists($splitline1[3])){
-			$contigp{$splitline2[0]} = "$contigp{$splitline2[0]};$splitline1[3]";
-			$color{$splitline1[3]}++
+		if (exists($splitline1[$level])){
+			$contigp{$splitline2[0]} = "$contigp{$splitline2[0]};$splitline1[$level]";
+			$color{$splitline1[$level]}++
 		}
 		else{
 			$contigp{$splitline2[0]} = "$contigp{$splitline2[0]};NA";
@@ -158,7 +160,7 @@ sub checkParams {
     #-----
     # Do any and all options checking here...
     #
-    my @standard_options = ( "help|h+", "inputfile|i:s", "outputfile|o:s", "outlegend|l:s", "noNA|n:+");
+    my @standard_options = ( "help|h+", "inputfile|i:s", "outputfile|o:s", "outlegend|l:s", "noNA|n:+", "level|l:s");
     my %options;
 
     # Add any other command line options, and the code to handle them
@@ -227,5 +229,6 @@ script.pl  -i [-h]
  [-inputfile -i]      Input file 
  [-outputfile -o]     List 
  [-noNA -n]           Ignore ambigous assignments (flag, default no).
+ [-level -l]          Phylogenetic assignment level (default: 3, phylum)
  
 =cut
