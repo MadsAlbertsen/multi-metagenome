@@ -8,7 +8,7 @@ At least two samples is needed where the target organisms are in different abund
 ###Micro-diversity
 The approach only concerns the binning, finishing and validation part of assembling genomes from metagenomes. If there are many strains of the same species present in the sample they will **not** be assembled in the de novo assembly. Hence, the approach can help you to get the most out of what you could assemble. It can not help you to recover complete genomes in samples with massive strain diversity of the target species as they will not assemble in the first place.
 
-[Next: Sequencing and Assembly](docs/step3.html)
+[Next: Sequencing and Assembly](step3.html)
 
 
 

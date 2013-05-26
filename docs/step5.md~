@@ -3,7 +3,7 @@ layout: default
 title: Data generation
 ---
 ##Data generation
-This section describes how to generate all data needed for subsequent binning in R. The data generation is diveded into a few small scripts in order to allow flexiblity in the choice of tools used. The important part is not which tools are used, but that all the data is integrated in R subsequently. 
+This section describes how to generate all data needed for subsequent binning in R. The data generation is divided into a few small scripts in order to allow flexiblity in the choice of tools used. The important part is not which tools are used, but that all the data is integrated in R subsequently. 
 
 For each scaffold the following information is generated: `gc content`, `kmer frequency`, `essential genes`, `essential genes taxonomy`. The full processed dataset used in the paper can be obtained from [here](https://dl.dropbox.com/s/989dix16ugyuvrq/Albertsen2013.data.tar.gz).
 

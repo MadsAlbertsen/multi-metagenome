@@ -35,4 +35,4 @@ If CLC is not an option (It's quite expensive) we recommend to take a look at [k
 
 However, the main problem in metagenome assembly is the presence of multiple closely realted strains, which acts like poison to the assemblers. Although several groups are trying to tackle this, there is to our knowledge no good bioinformatic solution. 
 
-[Next: Data generation]({{ site.url }}/docs/step3.html)
+[Next: Data generation]({{ site.url }}/docs/step5.html)

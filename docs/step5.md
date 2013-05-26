@@ -87,7 +87,7 @@ the script `hmm.majority.vote.pl` is used to find the consensus taxonomic assign
 perl multi-metagenome/R.data.generation/hmm.majority.vote.pl -i assembly.orfs.hmm.blast.tax.txt -o assembly.tax.consensus.txt -n
 {% endhighlight %}
 
-[Next: Binning using R]({{ site.url }}/docs/step9.html)
+[Next: Binning using R](step9.html)
 
 
 
