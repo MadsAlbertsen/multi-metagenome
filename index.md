@@ -1,5 +1,6 @@
 ---
 layout: default
+title: index
 ---
 This project contains scripts and tutorials on how to assemble individual microbial genomes from metagenomes, as described in:
 
