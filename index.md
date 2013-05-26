@@ -2,8 +2,6 @@
 layout: default
 title: index
 ---
-#Update test 3
-
 This project contains scripts and tutorials on how to assemble individual microbial genomes from metagenomes, as described in:
 
 **Genome sequences of rare, uncultured bacteria obtained by differential coverage binning of multiple metagenomes**

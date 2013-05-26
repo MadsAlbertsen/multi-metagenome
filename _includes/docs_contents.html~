@@ -9,7 +9,7 @@
     <a href="{{ site.url }}/multi-metagenome/docs/step1.html" class="button">-- Samples</a>
   </p>
   <p class="{% if page.title == "Assembly" %}current{% endif %}"> 
-    <a href="{{ site.url }}/multi-metagenome/docs/step3.html" class="button">-- Assembly</a>
+    <a href="{{ site.url }}/docs/step3.html" class="button">-- Assembly</a>
   </p>
   <p class="{% if page.title == "Data generation" %}current{% endif %}"> 
     <a href="{{ site.url }}/multi-metagenome/docs/step5.html" class="button">-- Data generation</a>
