@@ -5,7 +5,7 @@ title: Overview
 ##Step-by-step guide
 Overview of the pipeline to obtain high quality population genomes from multiple deep metagenomes using differential coverage as the primary binning method.
 
-![workflow](images/workflow.png)
+![workflow](../images/workflow.png)
 
 ###Samples, sequencing and assembly
 At least two different samples are needed, which contians the target organisms in different abundances ([step 1+2](step1.html)). Each sample is then independently shotgun-sequenced followed by a combined de novo assembly ([step 3+4](step3.html)). 
