@@ -3,7 +3,7 @@ layout: default
 title: Binning
 ---
 ## Introduction
-This R tutorial show how to extract individual genome bins from metagenomes, as descibed in Albertsen et al., 2013 (Add link). The guide is written in R markdown and can be found [here](https://github.com/MadsAlbertsen/multi-metagenome/tree/gh-pages/docs).
+This R tutorial show how to extract individual genome bins from metagenomes, as descibed in Albertsen et al., 2013 (Add link). The guide is written in R markdown and can be found [here](https://github.com/MadsAlbertsen/multi-metagenome/tree/gh-pages/docs) as `metagenome.workflow.Rmd`.
 
 ### Requirements
 The guide assumes basic knowledge of [Rstudio](http://www.rstudio.com/) (a powerfull IDE to [R](http://www.r-project.org/)). If you have never used R take a look at the [introduction at code school](http://tryr.codeschool.com/).
