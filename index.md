@@ -2,7 +2,7 @@
 layout: default
 title: index
 ---
-#Update test 2
+#Update test 3
 
 This project contains scripts and tutorials on how to assemble individual microbial genomes from metagenomes, as described in:
 
