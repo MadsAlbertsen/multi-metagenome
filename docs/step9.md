@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Data generation
+title: Binning
 ---
 ## Introduction
 This R tutorial show how to extract individual genome bins from metagenomes, as descibed in Albertsen et al., 2013 (Add link). The guide is written in R markdown and can be found [here](https://github.com/MadsAlbertsen/multi-metagenome/tree/gh-pages/docs).
