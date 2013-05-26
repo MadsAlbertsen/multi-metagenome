@@ -28,16 +28,9 @@ untar('Albertsen2013.data.tar.gz')
 
 In case you havn't install all the needed packages, they can be installed via e.g. `install.packages('vegan')`.
 
-
-{% highlight r %}
-R.version$version.string
-{% endhighlight %}
-
 {% highlight text%}
 "R version 3.0.1 (2013-05-16)"
 {% endhighlight %}
-
-
 
 {% highlight r %}
 library("vegan")
@@ -69,12 +62,11 @@ colnames(cons.tax) = c("name", "phylum", "tax.color", "all.assignments")
 {% endhighlight %}
 
 
-Merge all data on scaffolds into a single data frame `d`.
+Merge all data on scaffolds into a single dataframe `d`.
 
 
 {% highlight r %}
-d <- as.data.frame(cbind(HPminus$Name, HPplus$Reference.length, gc$gc, HPminus$Average.coverage, 
-    HPplus$Average.coverage), row.names = F)
+d <- as.data.frame(cbind(HPminus$Name, HPplus$Reference.length, gc$gc, HPminus$Average.coverage, HPplus$Average.coverage), row.names = F)
 colnames(d) = c("name", "length", "gc", "HPminus", "HPplus")
 d <- merge(d, cons.tax, by = "name", all = T)
 {% endhighlight %}
@@ -94,7 +86,7 @@ d$phylum <- sub("Opisthokonta", NA, d$phylum)
 {% endhighlight %}
 
 
-Merge all data on essential genes into a single data frame `e`.
+Merge all data on essential genes into a single dataframe `e`.
 
 
 {% highlight r %}
@@ -144,14 +136,9 @@ To make the subsequent binning more east we define a funtion to calculate basic 
 
 {% highlight r %}
 genome.stats <- matrix(NA, nrow = 0, ncol = 9)
-colnames(genome.stats) <- c("total.length", "# scaffolds", "mean.length", "max.length", 
-    "gc", "HPminus", "HPplus", "tot.ess", "uni.ess")
+colnames(genome.stats) <- c("total.length", "# scaffolds", "mean.length", "max.length", "gc", "HPminus", "HPplus", "tot.ess", "uni.ess")
 
-calc.genome.stats <- function(x, y) matrix(c(sum(x$length), nrow(x), round(mean(x$length), 
-    1), max(x$length), round(sum((x$gc * x$length))/sum(x$length), 1), round(sum((x$HPminus * 
-    x$length))/sum(x$length), 1), round(sum((x$HPplus * x$length))/sum(x$length), 
-    1), nrow(y), length(unique(y$hmm.id))), dimnames = list(colnames(genome.stats), 
-    ""))
+calc.genome.stats <- function(x, y) matrix(c(sum(x$length), nrow(x), round(mean(x$length), 1), max(x$length), round(sum((x$gc * x$length))/sum(x$length), 1), round(sum((x$HPminus * x$length))/sum(x$length), 1), round(sum((x$HPplus * x$length))/sum(x$length), 1), nrow(y), length(unique(y$hmm.id))), dimnames = list(colnames(genome.stats), ""))
 {% endhighlight %}
 
 
@@ -263,22 +250,18 @@ Use the scaffolds with essential genes as a rough guide for selection of a subse
 
 The locater function is used to interactively define a subspace on the plot. As locater is interactive - I've added the points maunally to allow recration of the full guide. The area defined by the selected points is extracted using the ahull function. 
 
-
 {% highlight r %}
 x <- "HPminus"
 y <- "HPplus"
 
-plot(ds[, x], ds[, y], log = "xy", cex = sqrt(ds$length)/100, pch = 20, col = rgb(0, 
-    0, 0, 0.1), xlim = c(55, 110), ylim = c(0.5, 10), xlab = "Coverage HP-", 
-    ylab = "Coverage HP+")
+plot(ds[, x], ds[, y], log = "xy", cex = sqrt(ds$length)/100, pch = 20, col = rgb(0, 0, 0, 0.1), xlim = c(55, 110), ylim = c(0.5, 10), xlab = "Coverage HP-", ylab = "Coverage HP+")
+points(ds[, x], ds[, y], cex = sqrt(ds$length)/100 * 0.7, col = ds$tax.color, lwd = 2)
 
-points(ds[, x], ds[, y], cex = sqrt(ds$length)/100 * 0.7, col = ds$tax.color, 
-    lwd = 2)
+{% endhighlight %}
 
 # def<-locator(100, type='p', pch=20)
 
-def <- {
-}
+def <- {}
 def$x <- c(64, 66, 81, 92, 94, 81, 68, 65)
 def$y <- c(2, 6.6, 7.7, 3.9, 1.4, 1, 1, 1.4)
 
@@ -332,7 +315,7 @@ As there is multiple genomes in the subset we make a PCA on the scaffolds in the
 {% highlight r %}
 rda <- rda(kmer[g1.s.A$name, 2:ncol(kmer)], scale = T)
 scores <- scores(rda, choices = 1:5)$sites
-#
+
 g1.s.B <- cbind(g1.s.A, scores)
 g1.e.B <- merge(g1.e.A, g1.s.B[, c(1, 9:13)], all.x = T, by = "name")
 {% endhighlight %}
@@ -341,14 +324,12 @@ g1.e.B <- merge(g1.e.A, g1.s.B[, c(1, 9:13)], all.x = T, by = "name")
 ### Decide on which PC's to use
 To get an overview of which principal components are most informative we use the pairs function to plot the first 5.
 
-
 {% highlight r %}
 rgb.c <- colorRampPalette(c("red", "green", "blue"))
 rgb.a <- adjustcolor(rgb.c(max(d$gc) - min(d$gc)), alpha.f = 0.2)
 palette(rgb.a)
 
-pairs(g1.s.B[, 9:13], upper.panel = NULL, col = g1.s.B$gc - min(d$gc), cex = sqrt(g1.s.B$length)/100, 
-    pch = 20)
+pairs(g1.s.B[, 9:13], upper.panel = NULL, col = g1.s.B$gc - min(d$gc), cex = sqrt(g1.s.B$length)/100, pch = 20)
 {% endhighlight %}
 
 ![plot of chunk GE - plot PCA](figure/GE-plotPCA.png) 
@@ -362,20 +343,14 @@ pairs(g1.s.B[, 9:13], upper.panel = NULL, col = g1.s.B$gc - min(d$gc), cex = sqr
 x <- "PC1"
 y <- "PC2"
 
-plot(g1.s.B[, x], g1.s.B[, y], cex = sqrt(g1.s.B$length)/100, pch = 20, col = rgb(0, 
-    0, 0, 0.1), xlab = x, ylab = y)
-
-points(g1.s.B[, x], g1.s.B[, y], cex = sqrt(g1.s.B$length)/100 * 0.7, col = g1.s.B$tax.color, 
-    lwd = 1)
+plot(g1.s.B[, x], g1.s.B[, y], cex = sqrt(g1.s.B$length)/100, pch = 20, col = rgb(0, 0, 0, 0.1), xlab = x, ylab = y)
+points(g1.s.B[, x], g1.s.B[, y], cex = sqrt(g1.s.B$length)/100 * 0.7, col = g1.s.B$tax.color, lwd = 1)
 
 # def<-locator(100, type='p', pch=20)
 
-def <- {
-}
-def$x <- c(0.3740306, 0.4839196, 0.9084907, 1.2431527, 1.2781173, 1.0733242, 
-    0.653748, 0.4689347, 0.3690356)
-def$y <- c(0.2810738, 1.31294166, 1.94015545, 1.99073721, 1.33317436, 0.39235367, 
-    0.04839772, 0.02816501, 0.22037569)
+def <- {}
+def$x <- c(0.3740306, 0.4839196, 0.9084907, 1.2431527, 1.2781173, 1.0733242, 0.653748, 0.4689347, 0.3690356)
+def$y <- c(0.2810738, 1.31294166, 1.94015545, 1.99073721, 1.33317436, 0.39235367, 0.04839772, 0.02816501, 0.22037569)
 
 g1.selection.B <- ahull(def, alpha = 1e+05)
 
@@ -419,8 +394,7 @@ There are a few duplicated "single copy genes", however in this case it is not d
 
 
 {% highlight r %}
-g1.d.C <- g1.e.C[which(duplicated(g1.e.C$hmm.id) | duplicated(g1.e.C$hmm.id, 
-    fromLast = TRUE)), ]
+g1.d.C <- g1.e.C[which(duplicated(g1.e.C$hmm.id) | duplicated(g1.e.C$hmm.id, fromLast = TRUE)), ]
 g1.d.C[order(g1.d.C$hmm.id), c(1, 3, 8)]
 {% endhighlight %}
 
