@@ -1,0 +1,93 @@
+---
+layout: default
+title: Data generation
+---
+##Data generation
+This section describes how to generate all data needed for subsequent binning in R. The data generation is divided into a few small scripts in order to allow flexiblity in the choice of tools used. The important part is not which tools are used, but that all the data is integrated in R subsequently. 
+
+For each scaffold the following information is generated: `gc content`, `kmer frequency`, `essential genes`, `essential genes taxonomy`. The full processed dataset used in the paper can be obtained from [here](https://dl.dropbox.com/s/989dix16ugyuvrq/Albertsen2013.data.tar.gz).
+
+###Dependencies
+A few programs are used in the data generation and hence needs to be installed: [MetaProdigal](http://bioinformatics.oxfordjournals.org/content/28/17/2223.abstract),
+[HMMER 3.0](http://hmmer.janelia.org/), [BLAST](http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download) and [MEGAN](http://ab.inf.uni-tuebingen.de/software/megan/).
+
+##For the impatient
+Download the multi-metagenome scripts. The easy way is to clone the github repository:
+
+{% highlight text%}
+git clone git://github.com/MadsAlbertsen/multi-metagenome.git
+{% endhighlight %}
+
+The shell script `workflow.R.data.generation.sh` in the **R.data.generation** folder wraps the individual steps. It assumes that the de novo assembly is named assembly.fa and present in the same folder as the script. Assuming you are in the same folder as where you downloaded the **multi-metagenome** folder, copy the shell script and then run it:
+
+{% highlight text%}
+cp multi-metagenome/R.data.generation/workflow.R.data.generation.sh .
+sh workflow.R.data.generation.sh
+{% endhighlight %}
+
+The following files are generated: `assembly.gc.tab`, `assembly.kmer.tab`, `assembly.orfs.hmm.id.txt`,`assembly.orfs.hmm.blast.tax.tab`, `assembly.tax.consensus.txt`.
+
+##Data generation in details
+Below the individual steps in the data generation process is described. The full path to the scripts are listed to show where they are located in the **multi-metagenome** folder. 
+
+Note: several of the scripts and programs rely on the header structure of the input sequences, to avoid any potential problems rename the scaffolds as e.g. 1, 2, 3 ... 100110 etc.
+
+###Scaffold coverage and length
+Scaffold coverage is estimated by mapping the reads from the two samples independently to the assembled scaffolds. Again we use CLC, but any other open source tool could be used. The result of this step is a list of all scaffolds and their coverage in either sample. In CLC the data is exported as a simple `.csv` file which contains both the `coverage` and `length` of each scaffold. The files `HPminus.scaffold.coverage.csv` and `HPplus.scaffold.coverage.csv` are included in the [example dataset](https://dl.dropbox.com/s/989dix16ugyuvrq/Albertsen2013.data.tar.gz).
+
+###Tetranucleotide frequency
+Tetranucleotide frequencies patterns are generated from the assembled scaffolds using `calc.kmerfreq.pl`.
+
+{% highlight text%}
+perl multi-metagenome/R.data.generation/calc.kmerfreq.pl -i assembly.fa -o assembly.kmer.tab
+{% endhighlight %}
+
+###GC content
+The GC content of each scaffold is calculated using `calc.gc.pl`.
+
+{% highlight text%}
+perl multi-metagenome/R.data.generation/calc.gc.pl -i assembly.fa -o assembly.gc.tab
+{% endhighlight %}
+
+###Identification of conserved marker proteins
+A set of 100+ HMM models (`essential.hmm`) of conserved single copy marker proteins is used to evaluate completeness and contamination in the genome bins and also to guide the initial selection of genome bins.
+
+As the HMM models are on protein level it is initially needed to call open reading frames in the assembled scaffolds using [MetaProdigal](http://bioinformatics.oxfordjournals.org/content/28/17/2223.abstract). The second line just simplifies the header a little.
+
+{% highlight text%}
+prodigal -a temp.orfs.faa -i assembly.fa -m -o temp.txt -p meta -q
+cut -f1 -f “ “ temp.orfs.faa > assembly.orfs.faa
+{% endhighlight %}
+
+Essential proteins are identified using HMM models (`essential.hmm`) and the output reformatted for later use in R. The file `assembly.orfs.hmm.id.txt` is used later in R.
+
+{% highlight text%}
+hmmsearch --tblout assembly.hmm.orfs.txt --cut_tc --notextw multi-metagenome/R.data.generation/essential.hmm assembly.orfs.faa
+tail -n+4 assembly.hmm.orfs.txt | sed 's/ * / /g' | cut -f1,4 -d " " > assembly.orfs.hmm.id.txt
+{% endhighlight %}
+
+The file `assembly.hmm.orfs.txt` contains information on all HMM positive ORFs. In order to get a fast overview of their taxonomic affiliation the names of the HMM positive ORFs are extracted (`list.of.positive.orfs.txt`), the sequence of the positive ORFs are extracted using `extract.using.header.list.pl` and then searched against the NCBI refseq_protein database using [BLAST](http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download).
+
+{% highlight text%}
+tail -n+4 assembly.hmm.orfs.txt | cut -f1 -d " " > list.of.positive.orfs.txt
+perl multi-metagenome/R.data.generation/extract.using.header.list.pl -l list.of.positive.orfs.txt -s assembly.orfs.faa -o assembly.orfs.hmm.faa
+blastp -query assembly.orfs.hmm.faa -db refseq_protein -evalue 1e-5 -num_threads 60 -max_target_seqs 5 -outfmt 5 -out assembly.orfs.hmm.blast.xml
+{% endhighlight %}
+
+To get a reasonable taxonomic classification [MEGANs](http://ab.inf.uni-tuebingen.de/software/megan/) LCA algorithm is utilized and the taxonomic assignment of each protein exported and formated for later use in R. The file `assembly.orfs.hmm.blast.tax.tab` contains the taxonomic assignment for each essential gene.
+{% highlight text%}
+MEGAN +g -x "import blastfile= assembly.orfs.hmm.blast.xml meganfile=temp.rma;recompute toppercent=5;recompute minsupport=1;update;collapse rank=Species;update;select nodes=all;export what=CSV format=readname_taxonpath separator=tab file=assembly.orfs.hmm.blast.tax.txt;update;close"
+sed 's/\t/;/' assembly.orfs.hmm.blast.tax.txt | cut -f1,5 -d ";" | sed 's/;/\t/' | sed 's/_/\t/' > assembly.orfs.hmm.blast.tax.tab
+{% endhighlight %}
+
+As the essential proteins are also used for guiding the binning process it is needed to aggregate the protein results to scaffold level. However, as large scaffolds often contain multiple marker proteins
+the script `hmm.majority.vote.pl` is used to find the consensus taxonomic assignment on scaffold level (`assembly.tax.consensus.txt`).
+
+{% highlight text%}
+perl multi-metagenome/R.data.generation/hmm.majority.vote.pl -i assembly.orfs.hmm.blast.tax.txt -o assembly.tax.consensus.txt -n
+{% endhighlight %}
+
+[Next: Binning using R]({{ site.url }}/docs/step9.html)
+
+
+

@@ -1,0 +1,25 @@
+---
+layout: docs
+title: guide1
+---
+
+## Introduction
+This R tutorial show how to extract individual genome bins from metagenomes, as descibed in Albertsen et al., 2013 (Add link). The guide is written in R markdown and can be found [HERE](https://github.com/MadsAlbertsen/multi-metagenome/tree/master/R.data.generation).
+
+The basic requirement is two metagenomes where the target species are in differential abundance. The data is assembled into 1 assembly (i.e a collection of scaffolds). The raw reads are then mapped independently to the assembly, which generates two coverage estimates for each scaffold.
+
+The guide uses the original data from the publication.
+
+***
+
+### Download the R formatted data.
+
+Download and upack the data used in Albertsen et al., 2013. The file is approximately 70 Mb.
+
+
+{% highlight %}
+# download.file('https://dl.dropbox.com/s/989dix16ugyuvrq/Albertsen2013.data.tar.gz','Albertsen2013.data.tar.gz') 
+# untar('Albertsen2013.data.tar.gz')
+{% endhighlight %}
+
+![plot of chunk Overview - Coverage GC plot](figure/test.png) 

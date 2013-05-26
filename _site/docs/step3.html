@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="/css/stylesheet.css" media="screen" />
+    <title>Multi-metagenome</title>
+  </head>
+
+
+  <body>
+<header>
+  <div class="inner">
+    <a id="forkme_banner" href="https://github.com/MadsAlbertsen/multi-metagenome">View on GitHub</a>
+    <h1>
+      <a style="color: rgb(255,255,255)" href="/"> 
+      Multi-metagenome
+    </h1>
+    <h2>Recovery of complete genomes from metagenomes</h2>
+    <section id="downloads">
+      <a class="zip_download_link" href="https://github.com/MadsAlbertsen/multi-metagenome/zipball/master">Download this project as a .zip file</a>
+      <a class="tar_download_link" href="https://github.com/MadsAlbertsen/multi-metagenome/tarball/master">Download this project as a tar.gz file</a>
+    </section>
+  </div>
+</header>
+
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h2 id='sequencing'>Sequencing</h2>
+
+<p>We normally sequence <code>2x150 bp reads</code> on the Illumina HiSeq2000 platfrom, using the nextera paired-end protocol (PE, 200-700 bp insert size). While PE libraries are enough for the assembly itself and enables recovery of the complete genome, mate-pair libraries (MP, &gt;2 kbp insert size) are extremely valuable in order to obtain the genomes in a single chromosome. The vast majority of repeats in bacterial genomes are due to transpoases (1-1.5 kbp) which can be spanned by MP libraries.</p>
+
+<h3 id='how_much_sequencing_is_needed'>How much sequencing is needed?</h3>
+
+<p>It is straight forward to get a ball-park estimation of the sequencing depth needed to recovere your favorite organism if you know the approximate abundance of it. As an example we assume an average genome size of 3 Mbp of all bacteria in the sample and the abundance of the target organism to 1%. In order to obtain a good draft genome at least 50X coverage is needed using 150 bp PE Illumina data. Hence, the needed sequencing depth would be:</p>
+<div class='highlight'><pre><code class='text'>Genomesize * Coverage * Abundance = Needed sequencing depth
+</code></pre></div><div class='highlight'><pre><code class='r'><span class='m'>3</span> Mbp <span class='o'>*</span> <span class='m'>50</span> X <span class='o'>*</span> <span class='m'>1</span> % <span class='o'>=</span> <span class='m'>15</span> Gbp 
+</code></pre></div>
+<p>15 Gbp is currently 1/2 lane of HiSeq2000 data or 2 MiSeq runs. Note that the needed sequencing depth can be split between the different samples.</p>
+
+<h2 id='assembly'>Assembly</h2>
+
+<p>We use <a href='http://www.clcbio.com/'>CLC genomics workbench</a> for all trimming, assembly and read mapping out of convinience, but all parts can be substituted with open source tools.</p>
+
+<h3 id='trimming'>Trimming</h3>
+
+<p>Prior to assembly the reads needs to be trimmed in order to remove adapters and bad quality sequence. We normally apply the following criteria:</p>
+<div class='highlight'><pre><code class='text'>Remove Illumina nextera adapters if found
+A minimum phred score of 20
+Allowing no ambigious nucleotids (N&#39;s)
+A minimum read length of 50 bp
+</code></pre></div>
+<h3 id='de_novo_assembly'>De novo assembly</h3>
+
+<p>De novo assembly of metagenomes is a field in constant development and numerous strategies exists. We are currently using CLC&#8217;s de novo assembly implementation as it is able to handle a wide range of coverage abundances, is memory friendly and fast. We have sucessfully assembled metagenome datasets &gt;300 Gbp in less than a day on server with 40 processers and 256 Gbp of RAM. We use standard settings except a <code>kmer of 63</code>.</p>
+
+<p>If CLC is not an option (It&#8217;s quite expensive) we recommend to take a look at <a href='https://khmer.readthedocs.org/en/latest/'>khmer</a> which also tries to enable assembly of large metagenome datasets.</p>
+
+<p>However, the main problem in metagenome assembly is the presence of multiple closely realted strains, which acts like poison to the assemblers. Although several groups are trying to tackle this, there is to our knowledge no good bioinformatic solution.</p>
+
+<p><a href='/docs/step5.html'>Next: Data generation</a></p>
+        </section>
+        <aside id="sidebar">
+  <p>
+    <a href="/" class="button">Home</a>
+  </p>
+  <p class="">
+    <a href="/docs/overview.html/" class="button">Step-by-step guide</a>
+  </p>
+  <p class=""> 
+    <a href="/docs/step1.html/" class="button">-- Samples</a>
+  </p>
+  <p class="current"> 
+    <a href="/docs/step3.html/" class="button">-- Assembly</a>
+  </p>
+  <p class=""> 
+    <a href="/docs/step5.html/" class="button">-- Data generation</a>
+  </p>
+  <p class=""> 
+    <a href="/docs/step9.html/" class="button">-- Binning</a>
+  </p>
+  <p class=""> 
+    <a href="/docs/step10.html/" class="button">-- PE tracking</a>
+  </p>
+  <p class=""> 
+    <a href="/docs/step11.html/" class="button">-- Reassembly</a>
+  </p>
+  <p class="">
+    <a href="/docs/step12.html/" class="button">-- Finishing</a>
+  </p>
+  <p class=""> 
+    <a href="/docs/faq.html/" class="button">FAQ</a>
+  </p>
+  <p class=""> 
+    <a href="/docs/contact.html/" class="button">Contact</a>
+  </p>
+</aside>
+
+      </div>
+    </div>
+
+<footer>
+  <div class="inner">
+    <p>
+      Multi-metagenome maintained by 
+      <a href="https://github.com/MadsAlbertsen">MadsAlbertsen</a>
+    </p>
+    <p>Published with <a href="http://pages.github.com">GitHub Pages</a> using <a href="http://jekyllrb.com/">Jekyll</a>
+    </p>
+  </div>
+</footer>
+
+
+  </body>
+</html>
+
+
+
