@@ -6,9 +6,9 @@ This project contains scripts and tutorials on how to assemble individual microb
 
 **Genome sequences of rare, uncultured bacteria obtained by differential coverage binning of multiple metagenomes**
 
-Mads Albertsen, Philip Hugenholtz, Adam Skarshewski, Gene W. Tyson, Kåre L. Nielsen and Per .H. Nielsen
+[Mads Albertsen](http://personprofil.aau.dk/120257), [Philip Hugenholtz](http://ecogenomic.org/users/phil-hugenholtz), [Adam Skarshewski](http://ecogenomic.org/users/adam-skarshewski), [Gene W. Tyson](http://www.ecogenomic.org/users/gene-tyson), [Kåre L. Nielsen](http://personprofil.aau.dk/103057) and [Per .H. Nielsen](http://personprofil.aau.dk/105842)
 
-Nature Biotechnology 2013, doi: XX
+Nature Biotechnology 2013, doi: 10.1038/nbt.2579
 
 ##What is differential coverage binning?
 Differential coverage binning refers to the use of the abundance of the bacteria in the samples as the primary method of extracting genomes from metagenomes. This is compared to many other binning methods where sequence composition (e.g. tetranucleotide patterns) is used for binning, which is hampered by local sequence deviations within genomes. 
@@ -16,7 +16,7 @@ Differential coverage binning refers to the use of the abundance of the bacteria
 The great advantage of using abundance is that it allows us to use abundance estimates from multiple samples, thereby increasing the binning resolution greatly. Given that sequencing prices continiues to drop it is already now cheaper to generate data than to analyse it.
 
 ##Step-by-step guide
-The [guide](docs/overview.html) coveres all aspects, from which samples that can be used, to binning, finishing and validation of the extracted genomes. [Rstudio](http://www.rstudio.com/) (a powerfull IDE to [R](http://www.r-project.org/)) is used as the main tool for data handling as it allows integration of all relevant data, which is key for dealing with large and complex datasets. The guide to binning in R is also available in R markdown format here(add link), which allows direct recreation of the binning steps in R from the original processed data used in the paper.
+The [guide](docs/overview.html) covers all aspects, from which samples that can be used, to binning, finishing and validation of the extracted genomes. [Rstudio](http://www.rstudio.com/) (a powerfull IDE to [R](http://www.r-project.org/)) is used as the main tool for data handling as it allows integration of all relevant data, which is key for dealing with large and complex datasets. The guide to binning in R is also available in R markdown format here(add link), which allows direct recreation of the binning steps in R from the original processed data used in the paper.
 
 In the [overview](docs/overview.html) section a short description of the workflow is given, along with a detailed workflow figure that summarise the different steps in the process of assembling individual genomes from metagenomes.
 

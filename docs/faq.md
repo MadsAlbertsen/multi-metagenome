@@ -2,5 +2,4 @@
 layout: default
 title: FAQ
 ---
-
-Under construction
+##Frequently Asked Questions

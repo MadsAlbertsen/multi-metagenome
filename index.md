@@ -6,9 +6,9 @@ This project contains scripts and tutorials on how to assemble individual microb
 
 **Genome sequences of rare, uncultured bacteria obtained by differential coverage binning of multiple metagenomes**
 
-Mads Albertsen, Philip Hugenholtz, Adam Skarshewski, Gene W. Tyson, Kåre L. Nielsen and Per .H. Nielsen
+[Mads Albertsen](http://personprofil.aau.dk/120257), [Philip Hugenholtz](http://ecogenomic.org/users/phil-hugenholtz), [Adam Skarshewski](http://ecogenomic.org/users/adam-skarshewski), [Gene W. Tyson](http://www.ecogenomic.org/users/gene-tyson), [Kåre L. Nielsen](http://personprofil.aau.dk/103057) and [Per .H. Nielsen](http://personprofil.aau.dk/105842)
 
-Nature Biotechnology 2013, doi: XX
+Nature Biotechnology 2013, doi: [10.1038/nbt.2579](http://www.nature.com/nbt/journal/vaop/ncurrent/abs/nbt.2579.html)
 
 ##What is differential coverage binning?
 Differential coverage binning refers to the use of the abundance of the bacteria in the samples as the primary method of extracting genomes from metagenomes. This is compared to many other binning methods where sequence composition (e.g. tetranucleotide patterns) is used for binning, which is hampered by local sequence deviations within genomes. 
