@@ -3,7 +3,7 @@ layout: default
 title: Assembly
 ---
 ##Sequencing
-We normally sequence `2x150 bp reads` on the Illumina HiSeq2000 platfrom, using the nextera paired-end protocol (PE, 200-700 bp insert size). While PE libraries are enough for the assembly itself and enables recovery of the complete genome, mate-pair libraries (MP, >2 kbp insert size) are extremely valuable in order to obtain the genomes in a single chromosome. The vast majority of repeats in bacterial genomes are due to transpoases (1-1.5 kbp) which can be spanned by MP libraries.
+We normally sequence `2x150 bp reads` on the Illumina HiSeq2000 platfrom, using the nextera paired-end protocol (PE, 200-700 bp insert size). While PE libraries are enough for the assembly itself and enables recovery of complete genomes, mate-pair libraries (MP, >2 kbp insert size) are extremely valuable in order to obtain the genomes in a single chromosome. The vast majority of repeats in bacterial genomes are due to transpoases (1-1.5 kbp) which can be spanned by MP libraries.
 
 ###How much sequencing is needed?
 It is straight forward to get a ball-park estimation of the sequencing depth needed to recovere your favorite organism if you know the approximate abundance of it. As an example we assume an average genome size of 3 Mbp of all bacteria in the sample and the abundance of the target organism to 1%. In order to obtain a good draft genome at least 50X coverage is needed using 150 bp PE Illumina data. Hence, the needed sequencing depth would be:
@@ -16,7 +16,7 @@ Genomesize * Coverage * Abundance = Needed sequencing depth
 15 Gbp is currently 1/2 lane of HiSeq2000 data or 2 MiSeq runs. Note that the needed sequencing depth can be split between the different samples.
 
 ##Assembly
-We use [CLC genomics workbench](http://www.clcbio.com/) for all trimming, assembly and read mapping out of convinience, but all parts can be substituted with open source tools. 
+We use [CLC genomics workbench](http://www.clcbio.com/) for all trimming, assembly and read mapping, but all parts can be substituted with open source tools. 
 
 ###Trimming
 Prior to assembly the reads needs to be trimmed in order to remove adapters and bad quality sequence. We normally apply the following criteria:

@@ -5,11 +5,10 @@ title: Data generation
 ##Data generation
 This section describes how to generate all data needed for subsequent binning in R. The data generation is divided into a few small scripts in order to allow flexiblity in the choice of tools used. The important part is not which tools are used, but that all the data is integrated in R subsequently. 
 
-For each scaffold the following information is generated: `gc content`, `kmer frequency`, `essential genes`, `essential genes taxonomy`. The full processed dataset used in the paper can be obtained from [here](https://dl.dropbox.com/s/989dix16ugyuvrq/Albertsen2013.data.tar.gz).
+For each scaffold the following information is generated: `gc content`, `kmer frequency`, `essential genes` and `essential genes taxonomy`. The full processed dataset used in the paper can be obtained from [here](https://dl.dropbox.com/s/989dix16ugyuvrq/Albertsen2013.data.tar.gz).
 
 ###Dependencies
-A few programs are used in the data generation and hence needs to be installed: [MetaProdigal](http://bioinformatics.oxfordjournals.org/content/28/17/2223.abstract),
-[HMMER 3.0](http://hmmer.janelia.org/), [BLAST](http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download) and [MEGAN](http://ab.inf.uni-tuebingen.de/software/megan/).
+A few programs are used in the data generation process and hence needs to be installed: [MetaProdigal](http://bioinformatics.oxfordjournals.org/content/28/17/2223.abstract), [HMMER 3.0](http://hmmer.janelia.org/), [BLAST](http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download) and [MEGAN](http://ab.inf.uni-tuebingen.de/software/megan/).
 
 ##For the impatient
 Download the multi-metagenome scripts. The easy way is to clone the github repository:
@@ -18,7 +17,7 @@ Download the multi-metagenome scripts. The easy way is to clone the github repos
 git clone git://github.com/MadsAlbertsen/multi-metagenome.git
 {% endhighlight %}
 
-The shell script `workflow.R.data.generation.sh` in the **R.data.generation** folder wraps the individual steps. It assumes that the de novo assembly is named assembly.fa and present in the same folder as the script. Assuming you are in the same folder as where you downloaded the **multi-metagenome** folder, copy the shell script and then run it:
+The shell script `workflow.R.data.generation.sh` in the **R.data.generation** folder wraps the individual steps. It assumes that the de novo assembly is named `assembly.fa` and present in the same folder as the script. Assuming you are in the same folder as where you downloaded the **multi-metagenome** folder, copy the shell script and then run it:
 
 {% highlight text%}
 cp multi-metagenome/R.data.generation/workflow.R.data.generation.sh .
@@ -66,7 +65,7 @@ hmmsearch --tblout assembly.hmm.orfs.txt --cut_tc --notextw multi-metagenome/R.d
 tail -n+4 assembly.hmm.orfs.txt | sed 's/ * / /g' | cut -f1,4 -d " " > assembly.orfs.hmm.id.txt
 {% endhighlight %}
 
-The file `assembly.hmm.orfs.txt` contains information on all HMM positive ORFs. In order to get a fast overview of their taxonomic affiliation the names of the HMM positive ORFs are extracted (`list.of.positive.orfs.txt`), the sequence of the positive ORFs are extracted using `extract.using.header.list.pl` and then searched against the NCBI refseq_protein database using [BLAST](http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download).
+The file `assembly.hmm.orfs.txt` contains information on all HMM positive ORFs. In order to get a fast overview of their taxonomic affiliation the names of the HMM positive ORFs are extracted (`list.of.positive.orfs.txt`), the sequence of the positive ORFs are extracted using `extract.using.header.list.pl` and then searched against the NCBI refseq database using [BLAST](http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download).
 
 {% highlight text%}
 tail -n+4 assembly.hmm.orfs.txt | cut -f1 -d " " > list.of.positive.orfs.txt
@@ -80,8 +79,7 @@ MEGAN +g -x "import blastfile= assembly.orfs.hmm.blast.xml meganfile=temp.rma;re
 sed 's/\t/;/' assembly.orfs.hmm.blast.tax.txt | cut -f1,5 -d ";" | sed 's/;/\t/' | sed 's/_/\t/' > assembly.orfs.hmm.blast.tax.tab
 {% endhighlight %}
 
-As the essential proteins are also used for guiding the binning process it is needed to aggregate the protein results to scaffold level. However, as large scaffolds often contain multiple marker proteins
-the script `hmm.majority.vote.pl` is used to find the consensus taxonomic assignment on scaffold level (`assembly.tax.consensus.txt`).
+As the essential proteins are also used for guiding the binning process it is needed to aggregate the protein results to scaffold level. However, as large scaffolds often contain multiple marker proteins the script `hmm.majority.vote.pl` is used to find the consensus taxonomic assignment on scaffold level (`assembly.tax.consensus.txt`).
 
 {% highlight text%}
 perl multi-metagenome/R.data.generation/hmm.majority.vote.pl -i assembly.orfs.hmm.blast.tax.txt -o assembly.tax.consensus.txt -n
