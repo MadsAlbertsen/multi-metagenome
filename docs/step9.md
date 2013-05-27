@@ -257,8 +257,6 @@ y <- "HPplus"
 plot(ds[, x], ds[, y], log = "xy", cex = sqrt(ds$length)/100, pch = 20, col = rgb(0, 0, 0, 0.1), xlim = c(55, 110), ylim = c(0.5, 10), xlab = "Coverage HP-", ylab = "Coverage HP+")
 points(ds[, x], ds[, y], cex = sqrt(ds$length)/100 * 0.7, col = ds$tax.color, lwd = 2)
 
-{% endhighlight %}
-
 # def<-locator(100, type='p', pch=20)
 
 def <- {}
