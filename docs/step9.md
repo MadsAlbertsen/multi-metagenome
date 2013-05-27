@@ -250,8 +250,23 @@ The locater function is used to interactively define a subspace on the plot. We 
 x <- "HPminus"
 y <- "HPplus"
 
-plot(ds[, x], ds[, y], log = "xy", cex = sqrt(ds$length)/100, pch = 20, col = rgb(0, 0, 0, 0.1), xlim = c(55, 110), ylim = c(0.5, 10), xlab = "Coverage HP-", ylab = "Coverage HP+")
-points(ds[, x], ds[, y], cex = sqrt(ds$length)/100 * 0.7, col = ds$tax.color, lwd = 2)
+plot(x = ds[, x], 
+     y = ds[, y], 
+     log = "xy", 
+     cex = sqrt(ds$length)/100, 
+     pch = 20, 
+     col = rgb(0, 0, 0, 0.1), 
+     xlim = c(55, 110), 
+     ylim = c(0.5, 10), 
+     xlab = "Coverage HP-", 
+     ylab = "Coverage HP+"
+)
+points(x = ds[, x], 
+       y = ds[, y], 
+       cex = sqrt(ds$length)/100 * 0.7, 
+       col = ds$tax.color, 
+       lwd = 2
+)
 
 # def<-locator(100, type='p', pch=20)
 
@@ -319,7 +334,12 @@ rgb.c <- colorRampPalette(c("red", "green", "blue"))
 rgb.a <- adjustcolor(rgb.c(max(d$gc) - min(d$gc)), alpha.f = 0.2)
 palette(rgb.a)
 
-pairs(g1.s.B[, 9:13], upper.panel = NULL, col = g1.s.B$gc - min(d$gc), cex = sqrt(g1.s.B$length)/100, pch = 20)
+pairs(g1.s.B[, 9:13], 
+      upper.panel = NULL, 
+      col = g1.s.B$gc - min(d$gc), 
+      cex = sqrt(g1.s.B$length)/100, 
+      pch = 20
+)
 {% endhighlight %}
 
 ![plot of chunk GE - plot PCA](figure/GE-plotPCA.png) 
@@ -332,8 +352,18 @@ pairs(g1.s.B[, 9:13], upper.panel = NULL, col = g1.s.B$gc - min(d$gc), cex = sqr
 x <- "PC1"
 y <- "PC2"
 
-plot(g1.s.B[, x], g1.s.B[, y], cex = sqrt(g1.s.B$length)/100, pch = 20, col = rgb(0, 0, 0, 0.1), xlab = x, ylab = y)
-points(g1.s.B[, x], g1.s.B[, y], cex = sqrt(g1.s.B$length)/100 * 0.7, col = g1.s.B$tax.color, lwd = 1)
+plot(x = g1.s.B[, x], 
+     y = g1.s.B[, y], 
+     cex = sqrt(g1.s.B$length)/100, 
+     pch = 20, 
+     col = rgb(0, 0, 0, 0.1)
+)
+points(x = g1.s.B[, x], 
+       y = g1.s.B[, y], 
+       cex = sqrt(g1.s.B$length)/100 * 0.7, 
+       col = g1.s.B$tax.color, 
+       lwd = 1
+)
 
 # def<-locator(100, type='p', pch=20)
 
