@@ -109,7 +109,8 @@ Interestingly it can be seen that the large cluster to the left only contains tw
 
 ##Tips and tricks
 Tip 1: The network analysis works much better with matepair data.
-Top 2: You can often spot plasmids and circular phages as a single node that links to itself.
+
+Top 2: You can often spot plasmids and circular phages as single nodes that links to themself.
 
 [Next: Reassembly](step11.html)
 
