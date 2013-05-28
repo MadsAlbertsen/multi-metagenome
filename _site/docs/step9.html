@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="/css/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="http://madsalbertsen.github.io/multi-metagenome/css/stylesheet.css" media="screen" />
     <title>Multi-metagenome</title>
   </head>
 
@@ -15,7 +15,7 @@
   <div class="inner">
     <a id="forkme_banner" href="https://github.com/MadsAlbertsen/multi-metagenome">View on GitHub</a>
     <h1>
-      <a style="color: rgb(255,255,255)" href="/"> 
+      <a style="color: rgb(255,255,255)" href="/multi-metagenome"> 
       Multi-metagenome
     </h1>
     <h2>Recovery of complete genomes from metagenomes</h2>
@@ -30,7 +30,340 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <p>Step9</p>
+          <h2 id='introduction'>Introduction</h2>
+
+<p>This tutorial show how to extract individual genome bins from metagenomes using <a href='http://www.rstudio.com/'>Rstudio</a>. The guide is written in R markdown and can be found <a href='https://github.com/MadsAlbertsen/multi-metagenome/tree/master/R.markdown.guide'>here</a> as <code>metagenome.workflow.Rmd</code>. Hence, compiling the guide should recreate all plots seen in the guide.</p>
+
+<h3 id='requirements'>Requirements</h3>
+
+<p>The guide assumes basic knowledge of <a href='http://www.rstudio.com/'>Rstudio</a> (a powerfull IDE to <a href='http://www.r-project.org/'>R</a>). If you have never used R take a look at the <a href='http://tryr.codeschool.com/'>introduction at code school</a>. In order to build the R markdown guide you will need to install <a href='http://yihui.name/knitr/'>knitr</a>. However, this is easily done in R by <code>install.packages(&quot;knitr&quot;)</code>.</p>
+
+<p>The basic data requirement is two metagenomes where the target species are in differential abundance. The data is assembled into 1 assembly (i.e a collection of scaffolds). The raw reads are then mapped independently to the assembly, which generates 2 <code>coverage</code> estimates for each scaffold. The coverage information is then integrated with all other information on each scaffold, i.e. <code>gc content</code>, <code>length</code>, <code>kmer frequency</code> and presence of <code>essential genes</code> and their <code>taxonomic classification</code>.</p>
+
+<p>All data except the two coverage estimates (<code>HPminus</code> and <code>HPplus</code>) can be automatically generated from a FastA file of the assembled scaffolds using the script: <code>workflow.R.data.generation.sh</code>, see <a href='http://madsalbertsen.github.io/multi-metagenome/docs/step5.html'>Data generation</a> for detailed information.</p>
+
+<p>The guide uses the original data from the publication.</p>
+
+<h3 id='download_the_r_formatted_data'>Download the R formatted data.</h3>
+
+<p>Download and upack the data used in Albertsen et al., 2013. The file is approximately 70 Mb.</p>
+<div class='highlight'><pre><code class='r'>download.file<span class='p'>(</span>url<span class='o'>=</span><span class='s'>&#39;https://dl.dropbox.com/s/989dix16ugyuvrq/Albertsen2013.data.tar.gz&#39;</span><span class='p'>,</span>destfile<span class='o'>=</span><span class='s'>&#39;Albertsen2013.data.tar.gz&#39;</span><span class='p'>,</span> method <span class='o'>=</span> <span class='s'>&#39;wget&#39;</span><span class='p'>)</span>
+untar<span class='p'>(</span><span class='s'>&#39;Albertsen2013.data.tar.gz&#39;</span><span class='p'>)</span>
+</code></pre></div>
+<h3 id='load_needed_packages'>Load needed packages</h3>
+
+<p>In case you havn&#8217;t install all the needed packages, they can be installed via e.g. <code>install.packages(&#39;vegan&#39;)</code>.</p>
+<div class='highlight'><pre><code class='text'>&quot;R version 3.0.1 (2013-05-16)&quot;
+</code></pre></div><div class='highlight'><pre><code class='r'>library<span class='p'>(</span><span class='s'>&quot;vegan&quot;</span><span class='p'>)</span>
+library<span class='p'>(</span><span class='s'>&quot;plyr&quot;</span><span class='p'>)</span>
+library<span class='p'>(</span><span class='s'>&quot;RColorBrewer&quot;</span><span class='p'>)</span>
+library<span class='p'>(</span><span class='s'>&quot;alphahull&quot;</span><span class='p'>)</span>
+library<span class='p'>(</span><span class='s'>&quot;ggplot2&quot;</span><span class='p'>)</span>
+</code></pre></div>
+<h3 id='read_in_all_the_data'>Read in all the data</h3>
+
+<p>The data is imported and a few of the data columns are renamed.</p>
+<div class='highlight'><pre><code class='r'>HPminus <span class='o'>&lt;-</span> read.csv<span class='p'>(</span><span class='s'>&quot;HPminus.scaffold.coverage.csv&quot;</span><span class='p'>,</span> header <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>)</span>
+HPplus <span class='o'>&lt;-</span> read.csv<span class='p'>(</span><span class='s'>&quot;HPplus.scaffold.coverage.csv&quot;</span><span class='p'>,</span> header <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>)</span>
+gc <span class='o'>&lt;-</span> read.delim<span class='p'>(</span><span class='s'>&quot;assembly.gc.tab&quot;</span><span class='p'>,</span> header <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>)</span>
+kmer <span class='o'>&lt;-</span> read.delim<span class='p'>(</span><span class='s'>&quot;assembly.kmer.tab&quot;</span><span class='p'>,</span> header <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>)</span>
+ess <span class='o'>&lt;-</span> read.table<span class='p'>(</span><span class='s'>&quot;assembly.orfs.hmm.id.txt&quot;</span><span class='p'>,</span> header <span class='o'>=</span> <span class='k-Variable'>F</span><span class='p'>)</span>
+ess.tax <span class='o'>&lt;-</span> read.delim<span class='p'>(</span><span class='s'>&quot;assembly.orfs.hmm.blast.tax.tab&quot;</span><span class='p'>,</span> header <span class='o'>=</span> <span class='k-Variable'>F</span><span class='p'>)</span>
+cons.tax <span class='o'>&lt;-</span> read.delim<span class='p'>(</span><span class='s'>&quot;assembly.tax.consensus.txt&quot;</span><span class='p'>,</span> header <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>)</span>
+
+colnames<span class='p'>(</span>kmer<span class='p'>)[</span><span class='m'>1</span><span class='p'>]</span> <span class='o'>=</span> <span class='s'>&quot;name&quot;</span>
+colnames<span class='p'>(</span>ess<span class='p'>)</span> <span class='o'>=</span> c<span class='p'>(</span><span class='s'>&quot;name&quot;</span><span class='p'>,</span> <span class='s'>&quot;orf&quot;</span><span class='p'>,</span> <span class='s'>&quot;hmm.id&quot;</span><span class='p'>)</span>
+colnames<span class='p'>(</span>ess.tax<span class='p'>)</span> <span class='o'>=</span> c<span class='p'>(</span><span class='s'>&quot;name&quot;</span><span class='p'>,</span> <span class='s'>&quot;orf&quot;</span><span class='p'>,</span> <span class='s'>&quot;phylum&quot;</span><span class='p'>)</span>
+colnames<span class='p'>(</span>cons.tax<span class='p'>)</span> <span class='o'>=</span> c<span class='p'>(</span><span class='s'>&quot;name&quot;</span><span class='p'>,</span> <span class='s'>&quot;phylum&quot;</span><span class='p'>,</span> <span class='s'>&quot;tax.color&quot;</span><span class='p'>,</span> <span class='s'>&quot;all.assignments&quot;</span><span class='p'>)</span>
+</code></pre></div>
+<p>Merge all data on scaffolds into a single dataframe <code>d</code>.</p>
+<div class='highlight'><pre><code class='r'>d <span class='o'>&lt;-</span> as.data.frame<span class='p'>(</span>cbind<span class='p'>(</span>HPminus<span class='o'>$</span>Name<span class='p'>,</span> HPplus<span class='o'>$</span>Reference.length<span class='p'>,</span> gc<span class='o'>$</span>gc<span class='p'>,</span> HPminus<span class='o'>$</span>Average.coverage<span class='p'>,</span> HPplus<span class='o'>$</span>Average.coverage<span class='p'>),</span> row.names <span class='o'>=</span> <span class='k-Variable'>F</span><span class='p'>)</span>
+colnames<span class='p'>(</span>d<span class='p'>)</span> <span class='o'>=</span> c<span class='p'>(</span><span class='s'>&quot;name&quot;</span><span class='p'>,</span> <span class='s'>&quot;length&quot;</span><span class='p'>,</span> <span class='s'>&quot;gc&quot;</span><span class='p'>,</span> <span class='s'>&quot;HPminus&quot;</span><span class='p'>,</span> <span class='s'>&quot;HPplus&quot;</span><span class='p'>)</span>
+d <span class='o'>&lt;-</span> merge<span class='p'>(</span>d<span class='p'>,</span> cons.tax<span class='p'>,</span> by <span class='o'>=</span> <span class='s'>&quot;name&quot;</span><span class='p'>,</span> all <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>)</span>
+</code></pre></div>
+<p>As the phylum names are a little messy we clean them for more pretty plots later.</p>
+<div class='highlight'><pre><code class='r'>d<span class='o'>$</span>phylum <span class='o'>&lt;-</span> sub<span class='p'>(</span><span class='s'>&quot;&lt;phylum&gt;&quot;</span><span class='p'>,</span> <span class='s'>&quot;&quot;</span><span class='p'>,</span> d<span class='o'>$</span>phylum<span class='p'>)</span>
+d<span class='o'>$</span>phylum <span class='o'>&lt;-</span> sub<span class='p'>(</span><span class='s'>&quot;unclassified Bacteria&quot;</span><span class='p'>,</span> <span class='s'>&quot;TM7&quot;</span><span class='p'>,</span> d<span class='o'>$</span>phylum<span class='p'>)</span>
+d<span class='o'>$</span>phylum <span class='o'>&lt;-</span> sub<span class='p'>(</span><span class='s'>&quot;/Chlorobi group&quot;</span><span class='p'>,</span> <span class='s'>&quot;&quot;</span><span class='p'>,</span> d<span class='o'>$</span>phylum<span class='p'>)</span>
+d<span class='o'>$</span>phylum <span class='o'>&lt;-</span> sub<span class='p'>(</span><span class='s'>&quot;Chlamydiae/&quot;</span><span class='p'>,</span> <span class='s'>&quot;&quot;</span><span class='p'>,</span> d<span class='o'>$</span>phylum<span class='p'>)</span>
+d<span class='o'>$</span>phylum <span class='o'>&lt;-</span> sub<span class='p'>(</span><span class='s'>&quot; group&quot;</span><span class='p'>,</span> <span class='s'>&quot;&quot;</span><span class='p'>,</span> d<span class='o'>$</span>phylum<span class='p'>)</span>
+d<span class='o'>$</span>phylum <span class='o'>&lt;-</span> sub<span class='p'>(</span><span class='s'>&quot;Amoebozoa&quot;</span><span class='p'>,</span> <span class='kc'>NA</span><span class='p'>,</span> d<span class='o'>$</span>phylum<span class='p'>)</span>
+d<span class='o'>$</span>phylum <span class='o'>&lt;-</span> sub<span class='p'>(</span><span class='s'>&quot;Opisthokonta&quot;</span><span class='p'>,</span> <span class='kc'>NA</span><span class='p'>,</span> d<span class='o'>$</span>phylum<span class='p'>)</span>
+</code></pre></div>
+<p>Merge all data on essential genes into a single dataframe <code>e</code>.</p>
+<div class='highlight'><pre><code class='r'>e <span class='o'>&lt;-</span> merge<span class='p'>(</span>ess<span class='p'>,</span> d<span class='p'>,</span> by <span class='o'>=</span> <span class='s'>&quot;name&quot;</span><span class='p'>,</span> all.x <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>)</span>
+e <span class='o'>&lt;-</span> merge<span class='p'>(</span>e<span class='p'>,</span> ess.tax<span class='p'>,</span> by <span class='o'>=</span> c<span class='p'>(</span><span class='s'>&quot;name&quot;</span><span class='p'>,</span> <span class='s'>&quot;orf&quot;</span><span class='p'>),</span> all.x <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>)</span>
+e <span class='o'>&lt;-</span> e<span class='p'>[,</span> <span class='o'>-</span>c<span class='p'>(</span><span class='m'>10</span><span class='p'>,</span> <span class='m'>11</span><span class='p'>)]</span>
+</code></pre></div>
+<p>We now have 2 dataframes: <code>d</code> which contains data on the individual <strong>scaffolds</strong> and <code>e</code> which contains data on <strong>essential genes</strong>. We work with 2 seperate dataframes as each scaffold can contain multiple essential genes.</p>
+
+<p>The <code>d</code> dataframe contains the following information:</p>
+<div class='highlight'><pre><code class='r'>d<span class='p'>[</span><span class='m'>7</span><span class='o'>:</span><span class='m'>10</span><span class='p'>,</span> <span class='p'>]</span>
+</code></pre></div><div class='highlight'><pre><code class='text'>name length    gc HPminus   HPplus         phylum tax.color                all.assignments
+   7  37104 43.57  468.75   37.795 Proteobacteria         1  Proteobacteria;Proteobacteria
+   8  10449 35.62   30.36    0.187           &lt;NA&gt;        NA                           &lt;NA&gt;
+   9   3252 58.35 1951.70 1750.486 Proteobacteria         1                 Proteobacteria
+  10  13660 52.53  854.71   33.496     Firmicutes         8          Firmicutes;Firmicutes
+</code></pre></div>
+<p>Where <code>name</code> is the name of the scaffold. <code>HPminus</code> is the coverage of the scaffold in the sample HPminus and <code>HPplus</code> is the coverage of the scaffold in the sample HPplus. <code>phylum</code> is the consensus phylum level assignement of the essential genes found on the scaffold. <code>tax.color</code> is a variable used for coloring and is arrange by decreasing number of essential genes in the total dataset. In this case there are most essential genes assigned to proteobacteria, hence it has the <code>tax.color</code> value of 1. <code>all.assignments</code> contains all taxonomic assignments for the essential genes found on the scaffold, seperated by &#8217;;&#8217;.</p>
+
+<p>The <code>e</code> dataframe contains the following information:</p>
+<div class='highlight'><pre><code class='r'>e<span class='p'>[</span><span class='m'>2</span><span class='o'>:</span><span class='m'>4</span><span class='p'>,</span> <span class='p'>]</span>
+</code></pre></div><div class='highlight'><pre><code class='text'>   name orf    hmm.id length    gc HPminus HPplus        phylum.x  tax.color
+  10010   1 TIGR00418   1325 58.19  135.11  11.39  Proteobacteria          1
+ 100146   1 TIGR02012   1389 68.06   37.65  20.38  Actinobacteria          3
+ 100172   3 TIGR00086   3583 66.12   17.99  29.21  Proteobacteria          1
+</code></pre></div>
+<p>Where <code>name</code> is the name of the scaffold and <code>orf</code> is the open reading frame within the scaffold. <code>hmm.id</code> is the HMM model that was identified in the <code>orf</code>.</p>
+
+<h3 id='define_a_few_functions_for_later_use'>Define a few functions for later use</h3>
+
+<p>To make the subsequent binning more easy we define a funtion to calculate basic statistics on a set of scaffolds and call it <code>calc.genome.stats</code>.</p>
+<div class='highlight'><pre><code class='r'>genome.stats <span class='o'>&lt;-</span> matrix<span class='p'>(</span><span class='kc'>NA</span><span class='p'>,</span> nrow <span class='o'>=</span> <span class='m'>0</span><span class='p'>,</span> ncol <span class='o'>=</span> <span class='m'>9</span><span class='p'>)</span>
+colnames<span class='p'>(</span>genome.stats<span class='p'>)</span> <span class='o'>&lt;-</span> c<span class='p'>(</span><span class='s'>&quot;total.length&quot;</span><span class='p'>,</span> <span class='s'>&quot;# scaffolds&quot;</span><span class='p'>,</span> <span class='s'>&quot;mean.length&quot;</span><span class='p'>,</span> <span class='s'>&quot;max.length&quot;</span><span class='p'>,</span> <span class='s'>&quot;gc&quot;</span><span class='p'>,</span> <span class='s'>&quot;HPminus&quot;</span><span class='p'>,</span> <span class='s'>&quot;HPplus&quot;</span><span class='p'>,</span> <span class='s'>&quot;tot.ess&quot;</span><span class='p'>,</span> <span class='s'>&quot;uni.ess&quot;</span><span class='p'>)</span>
+
+calc.genome.stats <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='p'>(</span>x<span class='p'>,</span> y<span class='p'>)</span> matrix<span class='p'>(</span>c<span class='p'>(</span>sum<span class='p'>(</span>x<span class='o'>$</span>length<span class='p'>),</span> nrow<span class='p'>(</span>x<span class='p'>),</span> round<span class='p'>(</span>mean<span class='p'>(</span>x<span class='o'>$</span>length<span class='p'>),</span> <span class='m'>1</span><span class='p'>),</span> max<span class='p'>(</span>x<span class='o'>$</span>length<span class='p'>),</span> round<span class='p'>(</span>sum<span class='p'>((</span>x<span class='o'>$</span>gc <span class='o'>*</span> x<span class='o'>$</span>length<span class='p'>))</span><span class='o'>/</span>sum<span class='p'>(</span>x<span class='o'>$</span>length<span class='p'>),</span> <span class='m'>1</span><span class='p'>),</span> round<span class='p'>(</span>sum<span class='p'>((</span>x<span class='o'>$</span>HPminus <span class='o'>*</span> x<span class='o'>$</span>length<span class='p'>))</span><span class='o'>/</span>sum<span class='p'>(</span>x<span class='o'>$</span>length<span class='p'>),</span> <span class='m'>1</span><span class='p'>),</span> round<span class='p'>(</span>sum<span class='p'>((</span>x<span class='o'>$</span>HPplus <span class='o'>*</span> x<span class='o'>$</span>length<span class='p'>))</span><span class='o'>/</span>sum<span class='p'>(</span>x<span class='o'>$</span>length<span class='p'>),</span> <span class='m'>1</span><span class='p'>),</span> nrow<span class='p'>(</span>y<span class='p'>),</span> length<span class='p'>(</span>unique<span class='p'>(</span>y<span class='o'>$</span>hmm.id<span class='p'>))),</span> dimnames <span class='o'>=</span> list<span class='p'>(</span>colnames<span class='p'>(</span>genome.stats<span class='p'>),</span> <span class='s'>&quot;&quot;</span><span class='p'>))</span>
+</code></pre></div>
+<p>We also define a funtion to extract a subset of scaffolds, called <code>extract</code>.</p>
+<div class='highlight'><pre><code class='r'>extract <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='p'>(</span>x<span class='p'>,</span> a.def<span class='p'>,</span> v1<span class='p'>,</span> v2<span class='p'>)</span> <span class='p'>{</span>
+    out <span class='o'>&lt;-</span> <span class='p'>{</span>
+    <span class='p'>}</span>
+    <span class='kr'>for</span> <span class='p'>(</span>i <span class='kr'>in</span> <span class='m'>1</span><span class='o'>:</span>nrow<span class='p'>(</span>x<span class='p'>))</span> <span class='p'>{</span>
+        <span class='kr'>if</span> <span class='p'>(</span>inahull<span class='p'>(</span>a.def<span class='p'>,</span> c<span class='p'>(</span>v1<span class='p'>[</span>i<span class='p'>],</span> v2<span class='p'>[</span>i<span class='p'>])))</span> 
+            out <span class='o'>&lt;-</span> rbind<span class='p'>(</span>out<span class='p'>,</span> x<span class='p'>[</span>i<span class='p'>,</span> <span class='p'>])</span>
+    <span class='p'>}</span>
+    <span class='kr'>return</span><span class='p'>(</span>out<span class='p'>)</span>
+<span class='p'>}</span>
+</code></pre></div>
+<h2 id='initial_overview_of_the_data'>Initial overview of the data</h2>
+
+<p>The <code>calc.genome.stats</code> function can be used to calculate basic statistics on the full dataset.</p>
+<div class='highlight'><pre><code class='r'>calc.genome.stats<span class='p'>(</span>d<span class='p'>,</span> e<span class='p'>)</span>
+</code></pre></div><div class='highlight'><pre><code class='text'>total.length 423095818
+# scaffolds     133947
+mean.length       3158
+max.length     3049334
+gc                54.6
+HPminus           83.7
+HPplus            24.6
+tot.ess           8311
+uni.ess            108
+</code></pre></div>
+<p><code>tot.ess</code> is the total number of essential genes identified and <code>uni.ess</code> is the number of unique essential genes.</p>
+
+<p>To get an initial overview of the data we subset the original dataframes <code>d</code> and <code>e</code> to only contain scaffolds &gt; 5000 bp and store the data in the dataframes <code>ds</code> and <code>es</code>.</p>
+<div class='highlight'><pre><code class='r'>ds <span class='o'>&lt;-</span> subset<span class='p'>(</span>d<span class='p'>,</span> length <span class='o'>&gt;</span> <span class='m'>5000</span><span class='p'>)</span>
+es <span class='o'>&lt;-</span> subset<span class='p'>(</span>e<span class='p'>,</span> length <span class='o'>&gt;</span> <span class='m'>5000</span><span class='p'>)</span>
+</code></pre></div>
+<h3 id='coverage_plot__colored_by_gc'>Coverage plot - Colored by GC</h3>
+
+<p>The basic plot is the <strong>differential coverage plot</strong>. We simply take all scaffolds and plot the two coverage estimates <code>HPplus</code> and <code>HPminus</code> against each other. Each circle on the plot is a scaffold, scaled by it&#8217;s length and colored according to GC content. We use the <a href='http://ggplot2.org/'>ggplot2</a> package to plot for easy generation of legends. Clusters of scaffolds with the same color (similar gc content) represents putative genome bins.</p>
+<div class='highlight'><pre><code class='r'>ggplot<span class='p'>(</span>ds<span class='p'>,</span> aes<span class='p'>(</span>x <span class='o'>=</span> HPminus<span class='p'>,</span> y <span class='o'>=</span> HPplus<span class='p'>,</span> color <span class='o'>=</span> gc<span class='p'>,</span> size <span class='o'>=</span> length<span class='p'>))</span> 
+    <span class='o'>+</span> scale_x_log10<span class='p'>(</span>limits <span class='o'>=</span> c<span class='p'>(</span><span class='m'>5</span><span class='p'>,</span> <span class='m'>5000</span><span class='p'>))</span> 
+    <span class='o'>+</span> scale_y_log10<span class='p'>(</span>limits <span class='o'>=</span> c<span class='p'>(</span><span class='m'>0.01</span><span class='p'>,</span> <span class='m'>2000</span><span class='p'>))</span> 
+    <span class='o'>+</span> xlab<span class='p'>(</span><span class='s'>&quot;Coverage (HP-)&quot;</span><span class='p'>)</span> 
+    <span class='o'>+</span> ylab<span class='p'>(</span><span class='s'>&quot;Coverage (HP+)&quot;</span><span class='p'>)</span> 
+    <span class='o'>+</span> geom_point<span class='p'>(</span>alpha <span class='o'>=</span> <span class='m'>0.5</span><span class='p'>)</span> 
+    <span class='o'>+</span> scale_size_area<span class='p'>(</span>name <span class='o'>=</span> <span class='s'>&quot;Scaffold length&quot;</span><span class='p'>,</span> max_size <span class='o'>=</span> <span class='m'>20</span><span class='p'>)</span> 
+    <span class='o'>+</span> scale_colour_gradientn<span class='p'>(</span>colours <span class='o'>=</span> c<span class='p'>(</span><span class='s'>&quot;red&quot;</span><span class='p'>,</span> <span class='s'>&quot;green&quot;</span><span class='p'>,</span> <span class='s'>&quot;blue&quot;</span><span class='p'>))</span>
+</code></pre></div>
+<p><img alt='plot of chunk Overview - Coverage GC plot' src='figure/Overview-CoverageGCplot.png' /></p>
+
+<h3 id='coverage_plot__colored_by_phylum_level_assignment_of_essential_genes'>Coverage plot - Colored by phylum level assignment of essential genes</h3>
+
+<p>To further underline that the clusters represents putative genome bins we color all scaffolds containing essential genes using the <code>tax.color</code> variable.</p>
+
+<p>However, to only color scaffolds from the 7 most abundant phyla we have to do a little workaround. The <code>tax.color</code> variable is sorted by abundance. E.g. tax.color = 1 is assigned to the phylum with most essential genes assigned. Change the <code>t</code> parameter to include more or less phyla.</p>
+<div class='highlight'><pre><code class='r'>t <span class='o'>&lt;-</span> <span class='m'>8</span>
+ds<span class='o'>$</span>tax.color<span class='p'>[</span>is.na<span class='p'>(</span>ds<span class='o'>$</span>tax.color<span class='p'>)]</span> <span class='o'>&lt;-</span> <span class='m'>0</span>
+<span class='kr'>for</span> <span class='p'>(</span>i <span class='kr'>in</span> <span class='m'>1</span><span class='o'>:</span>nrow<span class='p'>(</span>ds<span class='p'>))</span> <span class='p'>{</span>
+    <span class='kr'>if</span> <span class='p'>(</span>as.integer<span class='p'>(</span>ds<span class='o'>$</span>tax.color<span class='p'>[</span>i<span class='p'>])</span> <span class='o'>&lt;</span> t <span class='o'>&amp;</span> as.integer<span class='p'>(</span>ds<span class='o'>$</span>tax.color<span class='p'>[</span>i<span class='p'>])</span> <span class='o'>&gt;</span> <span class='m'>0</span><span class='p'>)</span> <span class='p'>{</span>
+        ds<span class='o'>$</span>tax.color<span class='p'>[</span>i<span class='p'>]</span> <span class='o'>&lt;-</span> brewer.pal<span class='p'>(</span><span class='m'>8</span><span class='p'>,</span> <span class='s'>&quot;Paired&quot;</span><span class='p'>)[</span>as.integer<span class='p'>(</span>ds<span class='o'>$</span>tax.color<span class='p'>[</span>i<span class='p'>])]</span>
+    <span class='p'>}</span> <span class='kr'>else</span> <span class='p'>{</span>
+        ds<span class='o'>$</span>tax.color<span class='p'>[</span>i<span class='p'>]</span> <span class='o'>&lt;-</span> <span class='kc'>NA</span>
+        ds<span class='o'>$</span>phylum<span class='p'>[</span>i<span class='p'>]</span> <span class='o'>&lt;-</span> <span class='kc'>NA</span>
+    <span class='p'>}</span>
+<span class='p'>}</span>
+
+pcol <span class='o'>&lt;-</span> cbind<span class='p'>(</span>unique<span class='p'>(</span>ds<span class='o'>$</span>tax.color<span class='p'>)[</span><span class='m'>-1</span><span class='p'>],</span> unique<span class='p'>(</span>ds<span class='o'>$</span>phylum<span class='p'>)[</span><span class='m'>-1</span><span class='p'>])</span>
+pcol <span class='o'>&lt;-</span> pcol<span class='p'>[</span>order<span class='p'>(</span>pcol<span class='p'>[,</span> <span class='m'>2</span><span class='p'>]),</span> <span class='m'>1</span><span class='p'>]</span>
+</code></pre></div>
+<p>Now we can make the plot. It is now even more clear that the clusters do seem to represent putative genome bins.</p>
+<div class='highlight'><pre><code class='r'>ggplot<span class='p'>(</span>ds<span class='p'>,</span> aes<span class='p'>(</span>x <span class='o'>=</span> HPminus<span class='p'>,</span> y <span class='o'>=</span> HPplus<span class='p'>,</span> size <span class='o'>=</span> length<span class='p'>,</span> colour <span class='o'>=</span> phylum<span class='p'>))</span> 
+    <span class='o'>+</span> scale_x_log10<span class='p'>(</span>limits <span class='o'>=</span> c<span class='p'>(</span><span class='m'>5</span><span class='p'>,</span> <span class='m'>5000</span><span class='p'>))</span> 
+    <span class='o'>+</span> scale_y_log10<span class='p'>(</span>limits <span class='o'>=</span> c<span class='p'>(</span><span class='m'>0.01</span><span class='p'>,</span> <span class='m'>2000</span><span class='p'>))</span>
+    <span class='o'>+</span> xlab<span class='p'>(</span><span class='s'>&quot;Coverage (HP-)&quot;</span><span class='p'>)</span> 
+    <span class='o'>+</span> ylab<span class='p'>(</span><span class='s'>&quot;Coverage (HP+)&quot;</span><span class='p'>)</span>
+    <span class='o'>+</span> geom_point<span class='p'>(</span>alpha <span class='o'>=</span> <span class='m'>0.1</span><span class='p'>,</span> colour <span class='o'>=</span> <span class='s'>&quot;black&quot;</span><span class='p'>)</span> 
+    <span class='o'>+</span> geom_point<span class='p'>(</span>shape <span class='o'>=</span> <span class='m'>1</span><span class='p'>)</span> 
+    <span class='o'>+</span> scale_colour_manual<span class='p'>(</span>name <span class='o'>=</span> <span class='s'>&quot;Phyla&quot;</span><span class='p'>,</span> values <span class='o'>=</span> pcol<span class='p'>)</span> 
+    <span class='o'>+</span> scale_size_area<span class='p'>(</span>name <span class='o'>=</span> <span class='s'>&quot;Scaffold length&quot;</span><span class='p'>,</span> max_size <span class='o'>=</span> <span class='m'>20</span><span class='p'>)</span> 
+    <span class='o'>+</span> guides<span class='p'>(</span>colour <span class='o'>=</span> guide_legend<span class='p'>(</span>override.aes <span class='o'>=</span> list<span class='p'>(</span>alpha <span class='o'>=</span> <span class='m'>1</span><span class='p'>,</span> size <span class='o'>=</span> <span class='m'>5</span><span class='p'>,</span> shape <span class='o'>=</span> <span class='m'>19</span><span class='p'>)))</span>
+</code></pre></div>
+<p><img alt='plot of chunk Overview - Coverage phylum plot' src='figure/Overview-Coveragephylumplot.png' /></p>
+
+<h2 id='genome_extraction'>Genome extraction</h2>
+
+<p>Now for the fun part of actually extracting individual genomes from the metagenome. In this example we focus on a genome related to Verrumicrobia.</p>
+
+<h3 id='zoom_on_the_target_genome'>Zoom on the target genome</h3>
+
+<p>Use the scaffolds with essential genes as a rough guide for selection of a subset of scaffolds that include the target genome. The non-target scaffolds will be removed in the next step.</p>
+
+<p>The <code>locator</code> function is used to interactively define a subspace on the plot. We do not use ggplot2 here as it is not compatible with the <code>locator</code> function. As <code>locator</code> is interactive - I&#8217;ve added the points maunally to allow recration of the full guide. Normally you run the command <code>def&lt;-locator(100, type=&#39;p&#39;, pch=20)</code> and then interactively chose the subset on the plot - remember to click finish or hit <code>esc</code> when you have defined your subspace on the plot. The area defined by the selected points is extracted using the ahull function.</p>
+<div class='highlight'><pre><code class='r'>x <span class='o'>&lt;-</span> <span class='s'>&quot;HPminus&quot;</span>
+y <span class='o'>&lt;-</span> <span class='s'>&quot;HPplus&quot;</span>
+
+plot<span class='p'>(</span>x <span class='o'>=</span> ds<span class='p'>[,</span> x<span class='p'>],</span> 
+     y <span class='o'>=</span> ds<span class='p'>[,</span> y<span class='p'>],</span> 
+     log <span class='o'>=</span> <span class='s'>&quot;xy&quot;</span><span class='p'>,</span> 
+     cex <span class='o'>=</span> sqrt<span class='p'>(</span>ds<span class='o'>$</span>length<span class='p'>)</span><span class='o'>/</span><span class='m'>100</span><span class='p'>,</span> 
+     pch <span class='o'>=</span> <span class='m'>20</span><span class='p'>,</span> 
+     col <span class='o'>=</span> rgb<span class='p'>(</span><span class='m'>0</span><span class='p'>,</span> <span class='m'>0</span><span class='p'>,</span> <span class='m'>0</span><span class='p'>,</span> <span class='m'>0.1</span><span class='p'>),</span> 
+     xlim <span class='o'>=</span> c<span class='p'>(</span><span class='m'>55</span><span class='p'>,</span> <span class='m'>110</span><span class='p'>),</span> 
+     ylim <span class='o'>=</span> c<span class='p'>(</span><span class='m'>0.5</span><span class='p'>,</span> <span class='m'>10</span><span class='p'>),</span> 
+     xlab <span class='o'>=</span> <span class='s'>&quot;Coverage HP-&quot;</span><span class='p'>,</span> 
+     ylab <span class='o'>=</span> <span class='s'>&quot;Coverage HP+&quot;</span>
+<span class='p'>)</span>
+points<span class='p'>(</span>x <span class='o'>=</span> ds<span class='p'>[,</span> x<span class='p'>],</span> 
+       y <span class='o'>=</span> ds<span class='p'>[,</span> y<span class='p'>],</span> 
+       cex <span class='o'>=</span> sqrt<span class='p'>(</span>ds<span class='o'>$</span>length<span class='p'>)</span><span class='o'>/</span><span class='m'>100</span> <span class='o'>*</span> <span class='m'>0.7</span><span class='p'>,</span> 
+       col <span class='o'>=</span> ds<span class='o'>$</span>tax.color<span class='p'>,</span> 
+       lwd <span class='o'>=</span> <span class='m'>2</span>
+<span class='p'>)</span>
+
+<span class='c1'># def&lt;-locator(100, type=&#39;p&#39;, pch=20)</span>
+
+def <span class='o'>&lt;-</span> <span class='p'>{}</span>
+def<span class='o'>$</span>x <span class='o'>&lt;-</span> c<span class='p'>(</span><span class='m'>64</span><span class='p'>,</span> <span class='m'>66</span><span class='p'>,</span> <span class='m'>81</span><span class='p'>,</span> <span class='m'>92</span><span class='p'>,</span> <span class='m'>94</span><span class='p'>,</span> <span class='m'>81</span><span class='p'>,</span> <span class='m'>68</span><span class='p'>,</span> <span class='m'>65</span><span class='p'>)</span>
+def<span class='o'>$</span>y <span class='o'>&lt;-</span> c<span class='p'>(</span><span class='m'>2</span><span class='p'>,</span> <span class='m'>6.6</span><span class='p'>,</span> <span class='m'>7.7</span><span class='p'>,</span> <span class='m'>3.9</span><span class='p'>,</span> <span class='m'>1.4</span><span class='p'>,</span> <span class='m'>1</span><span class='p'>,</span> <span class='m'>1</span><span class='p'>,</span> <span class='m'>1.4</span><span class='p'>)</span>
+
+g1.selection.A <span class='o'>&lt;-</span> ahull<span class='p'>(</span>def<span class='p'>,</span> alpha <span class='o'>=</span> <span class='m'>1e+05</span><span class='p'>)</span>
+
+plot<span class='p'>(</span>g1.selection.A<span class='p'>,</span> col <span class='o'>=</span> <span class='s'>&quot;black&quot;</span><span class='p'>,</span> add <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>)</span>
+</code></pre></div>
+<p><img alt='plot of chunk GE - Zoom' src='figure/GE-Zoom.png' /></p>
+
+<h3 id='extract_scaffolds_and_essential_genes'>Extract scaffolds and essential genes</h3>
+
+<p>Extract all scaffolds and essential genes within the defined subspace using the <code>extract</code> function.</p>
+<div class='highlight'><pre><code class='r'>g1.s.A <span class='o'>&lt;-</span> extract<span class='p'>(</span>ds<span class='p'>,</span> g1.selection.A<span class='p'>,</span> ds<span class='p'>[,</span> x<span class='p'>],</span> ds<span class='p'>[,</span> y<span class='p'>])</span>
+g1.e.A <span class='o'>&lt;-</span> extract<span class='p'>(</span>es<span class='p'>,</span> g1.selection.A<span class='p'>,</span> es<span class='p'>[,</span> x<span class='p'>],</span> es<span class='p'>[,</span> y<span class='p'>])</span>
+</code></pre></div>
+<p>The extracted scaffolds are stored in the variable <code>g1.s.A</code> and the extracted essential genes in <code>g1.e.A</code>.</p>
+
+<h3 id='calculate_statistics_on_the_extracted_scaffolds'>Calculate statistics on the extracted scaffolds</h3>
+
+<p>The <code>calc.genome.stats</code> function is then used to see the basic statistics of the selected scaffolds.</p>
+<div class='highlight'><pre><code class='r'>calc.genome.stats<span class='p'>(</span>g1.s.A<span class='p'>,</span> g1.e.A<span class='p'>)</span>
+</code></pre></div><div class='highlight'><pre><code class='text'>total.length 9801161
+# scaffolds      228
+mean.length    42987
+max.length    701203
+gc              54.9
+HPminus         79.1
+HPplus           3.2
+tot.ess          161
+uni.ess          104
+</code></pre></div>
+<p>As seen on the previous plot we have other bacteria in the extracted scaffolds. This can also be seen as we have more total essential genes (<code>tot.ess</code>) than unique essential genes (<code>uni.ess</code>). As the majority of the essential genes are single copy genes we expect as many total essential genes as unique essential genes. A total of 100-106 essential genes are needed for a complete genome depending on phylum level conservation.</p>
+
+<h2 id='pca_on_the_subset'>PCA on the subset</h2>
+
+<p>As there is multiple genomes in the subset we make a PCA on the <code>tetranucleotide frequencies</code> of the extracted scaffolds using <a href='http://cran.r-project.org/web/packages/vegan/index.html'>vegan</a> and store the information in a new variable <code>g1.s.B</code>.</p>
+<div class='highlight'><pre><code class='r'>rda <span class='o'>&lt;-</span> rda<span class='p'>(</span>kmer<span class='p'>[</span>g1.s.A<span class='o'>$</span>name<span class='p'>,</span> <span class='m'>2</span><span class='o'>:</span>ncol<span class='p'>(</span>kmer<span class='p'>)],</span> scale <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>)</span>
+scores <span class='o'>&lt;-</span> scores<span class='p'>(</span>rda<span class='p'>,</span> choices <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>5</span><span class='p'>)</span><span class='o'>$</span>sites
+
+g1.s.B <span class='o'>&lt;-</span> cbind<span class='p'>(</span>g1.s.A<span class='p'>,</span> scores<span class='p'>)</span>
+g1.e.B <span class='o'>&lt;-</span> merge<span class='p'>(</span>g1.e.A<span class='p'>,</span> g1.s.B<span class='p'>[,</span> c<span class='p'>(</span><span class='m'>1</span><span class='p'>,</span> <span class='m'>9</span><span class='o'>:</span><span class='m'>13</span><span class='p'>)],</span> all.x <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>,</span> by <span class='o'>=</span> <span class='s'>&quot;name&quot;</span><span class='p'>)</span>
+</code></pre></div>
+<h3 id='decide_on_which_pcs_to_use'>Decide on which PC&#8217;s to use</h3>
+
+<p>To get an overview of which principal components are most informative we use the pairs function to plot the first 5. The scaffolds are again scaled by length and colored by gc content.</p>
+<div class='highlight'><pre><code class='r'>rgb.c <span class='o'>&lt;-</span> colorRampPalette<span class='p'>(</span>c<span class='p'>(</span><span class='s'>&quot;red&quot;</span><span class='p'>,</span> <span class='s'>&quot;green&quot;</span><span class='p'>,</span> <span class='s'>&quot;blue&quot;</span><span class='p'>))</span>
+rgb.a <span class='o'>&lt;-</span> adjustcolor<span class='p'>(</span>rgb.c<span class='p'>(</span>max<span class='p'>(</span>d<span class='o'>$</span>gc<span class='p'>)</span> <span class='o'>-</span> min<span class='p'>(</span>d<span class='o'>$</span>gc<span class='p'>)),</span> alpha.f <span class='o'>=</span> <span class='m'>0.2</span><span class='p'>)</span>
+palette<span class='p'>(</span>rgb.a<span class='p'>)</span>
+
+pairs<span class='p'>(</span>g1.s.B<span class='p'>[,</span> <span class='m'>9</span><span class='o'>:</span><span class='m'>13</span><span class='p'>],</span> 
+      upper.panel <span class='o'>=</span> <span class='kc'>NULL</span><span class='p'>,</span> 
+      col <span class='o'>=</span> g1.s.B<span class='o'>$</span>gc <span class='o'>-</span> min<span class='p'>(</span>d<span class='o'>$</span>gc<span class='p'>),</span> 
+      cex <span class='o'>=</span> sqrt<span class='p'>(</span>g1.s.B<span class='o'>$</span>length<span class='p'>)</span><span class='o'>/</span><span class='m'>100</span><span class='p'>,</span> 
+      pch <span class='o'>=</span> <span class='m'>20</span>
+<span class='p'>)</span>
+</code></pre></div>
+<p><img alt='plot of chunk GE - plot PCA' src='figure/GE-plotPCA.png' /></p>
+
+<h3 id='extract_scaffolds_using_locator'>Extract scaffolds using locator</h3>
+
+<p><code>PC1</code> and <code>PC2</code> seem to seperate our target genome from the other scaffolds and are therefore used for another extraction using the locator function.</p>
+<div class='highlight'><pre><code class='r'>x <span class='o'>&lt;-</span> <span class='s'>&quot;PC1&quot;</span>
+y <span class='o'>&lt;-</span> <span class='s'>&quot;PC2&quot;</span>
+
+plot<span class='p'>(</span>x <span class='o'>=</span> g1.s.B<span class='p'>[,</span> x<span class='p'>],</span> 
+     y <span class='o'>=</span> g1.s.B<span class='p'>[,</span> y<span class='p'>],</span> 
+     cex <span class='o'>=</span> sqrt<span class='p'>(</span>g1.s.B<span class='o'>$</span>length<span class='p'>)</span><span class='o'>/</span><span class='m'>100</span><span class='p'>,</span> 
+     pch <span class='o'>=</span> <span class='m'>20</span><span class='p'>,</span> 
+     col <span class='o'>=</span> rgb<span class='p'>(</span><span class='m'>0</span><span class='p'>,</span> <span class='m'>0</span><span class='p'>,</span> <span class='m'>0</span><span class='p'>,</span> <span class='m'>0.1</span><span class='p'>)</span>
+<span class='p'>)</span>
+points<span class='p'>(</span>x <span class='o'>=</span> g1.s.B<span class='p'>[,</span> x<span class='p'>],</span> 
+       y <span class='o'>=</span> g1.s.B<span class='p'>[,</span> y<span class='p'>],</span> 
+       cex <span class='o'>=</span> sqrt<span class='p'>(</span>g1.s.B<span class='o'>$</span>length<span class='p'>)</span><span class='o'>/</span><span class='m'>100</span> <span class='o'>*</span> <span class='m'>0.7</span><span class='p'>,</span> 
+       col <span class='o'>=</span> g1.s.B<span class='o'>$</span>tax.color<span class='p'>,</span> 
+       lwd <span class='o'>=</span> <span class='m'>1</span>
+<span class='p'>)</span>
+
+<span class='c1'># def&lt;-locator(100, type=&#39;p&#39;, pch=20)</span>
+
+def <span class='o'>&lt;-</span> <span class='p'>{}</span>
+def<span class='o'>$</span>x <span class='o'>&lt;-</span> c<span class='p'>(</span><span class='m'>0.3740306</span><span class='p'>,</span> <span class='m'>0.4839196</span><span class='p'>,</span> <span class='m'>0.9084907</span><span class='p'>,</span> <span class='m'>1.2431527</span><span class='p'>,</span> <span class='m'>1.2781173</span><span class='p'>,</span> <span class='m'>1.0733242</span><span class='p'>,</span> <span class='m'>0.653748</span><span class='p'>,</span> <span class='m'>0.4689347</span><span class='p'>,</span> <span class='m'>0.3690356</span><span class='p'>)</span>
+def<span class='o'>$</span>y <span class='o'>&lt;-</span> c<span class='p'>(</span><span class='m'>0.2810738</span><span class='p'>,</span> <span class='m'>1.31294166</span><span class='p'>,</span> <span class='m'>1.94015545</span><span class='p'>,</span> <span class='m'>1.99073721</span><span class='p'>,</span> <span class='m'>1.33317436</span><span class='p'>,</span> <span class='m'>0.39235367</span><span class='p'>,</span> <span class='m'>0.04839772</span><span class='p'>,</span> <span class='m'>0.02816501</span><span class='p'>,</span> <span class='m'>0.22037569</span><span class='p'>)</span>
+
+g1.selection.B <span class='o'>&lt;-</span> ahull<span class='p'>(</span>def<span class='p'>,</span> alpha <span class='o'>=</span> <span class='m'>1e+05</span><span class='p'>)</span>
+
+plot<span class='p'>(</span>g1.selection.B<span class='p'>,</span> col <span class='o'>=</span> <span class='s'>&quot;black&quot;</span><span class='p'>,</span> add <span class='o'>=</span> <span class='k-Variable'>T</span><span class='p'>)</span>
+</code></pre></div>
+<p><img alt='plot of chunk GE - Extract PCA' src='figure/GE-ExtractPCA.png' /></p>
+
+<h3 id='extract_the_scaffolds'>Extract the scaffolds</h3>
+
+<p>Again the <code>extract</code> function is used to retrive the scaffolds in the selected subset. Note that the input to the <code>extract</code> function is now the previous selection i.e. <code>g1.s.B</code> and <code>g1.e.B</code>.</p>
+<div class='highlight'><pre><code class='r'>g1.s.C <span class='o'>&lt;-</span> extract<span class='p'>(</span>g1.s.B<span class='p'>,</span> g1.selection.B<span class='p'>,</span> g1.s.B<span class='p'>[,</span> x<span class='p'>],</span> g1.s.B<span class='p'>[,</span> y<span class='p'>])</span>
+g1.e.C <span class='o'>&lt;-</span> extract<span class='p'>(</span>g1.e.B<span class='p'>,</span> g1.selection.B<span class='p'>,</span> g1.e.B<span class='p'>[,</span> x<span class='p'>],</span> g1.e.B<span class='p'>[,</span> y<span class='p'>])</span>
+</code></pre></div>
+<h3 id='look_at_the_statistics_of_the_extracted_scaffolds'>Look at the statistics of the extracted scaffolds</h3>
+
+<p>Lets see if we now have extracted a clean genome based on the single copy essential genes.</p>
+<div class='highlight'><pre><code class='r'>calc.genome.stats<span class='p'>(</span>g1.s.C<span class='p'>,</span> g1.e.C<span class='p'>)</span>
+</code></pre></div><div class='highlight'><pre><code class='text'>total.length   6823444
+# scaffolds         59
+mean.length     115651
+max.length      701203
+gc                60.9
+HPminus           77.4
+HPplus             3.0
+tot.ess          106.0
+uni.ess          103.0
+</code></pre></div>
+<p>There are a few duplicated &#8220;single copy genes&#8221;, however in this case it is not due to mulitple species in the bin, but real duplicates in the genome. This can be seen by looking at which genes are duplicated. In this case it is <code>PF01795</code> which is often found in multiple copies, especially in large genomes.</p>
+<div class='highlight'><pre><code class='r'>g1.d.C <span class='o'>&lt;-</span> g1.e.C<span class='p'>[</span>which<span class='p'>(</span>duplicated<span class='p'>(</span>g1.e.C<span class='o'>$</span>hmm.id<span class='p'>)</span> <span class='o'>|</span> duplicated<span class='p'>(</span>g1.e.C<span class='o'>$</span>hmm.id<span class='p'>,</span> fromLast <span class='o'>=</span> <span class='kc'>TRUE</span><span class='p'>)),</span> <span class='p'>]</span>
+g1.d.C<span class='p'>[</span>order<span class='p'>(</span>g1.d.C<span class='o'>$</span>hmm.id<span class='p'>),</span> c<span class='p'>(</span><span class='m'>1</span><span class='p'>,</span> <span class='m'>3</span><span class='p'>,</span> <span class='m'>8</span><span class='p'>)]</span>
+</code></pre></div><div class='highlight'><pre><code class='text'>name     hmm.id          phylum
+ 735 PF01795.14 Verrucomicrobia
+2546 PF01795.14 Verrucomicrobia
+2546 PF01795.14 Verrucomicrobia
+5388 PF01795.14 Verrucomicrobia
+</code></pre></div>
+<h2 id='save_the_extracted_scaffolds'>Save the extracted scaffolds</h2>
+
+<p>Finally we add the genome statistics to a list <code>genome.stats</code> and print the name of the scaffolds to a file for further refinement. If you extract multiple genomes you can keep track of them by adding them to the <code>genome.stats</code> variable.</p>
+<div class='highlight'><pre><code class='r'>genome.stats <span class='o'>&lt;-</span> rbind<span class='p'>(</span>genome.stats<span class='p'>,</span> t<span class='p'>(</span>calc.genome.stats<span class='p'>(</span>g1.s.C<span class='p'>,</span> g1.e.C<span class='p'>)))</span>
+rownames<span class='p'>(</span>genome.stats<span class='p'>)[</span>nrow<span class='p'>(</span>genome.stats<span class='p'>)]</span> <span class='o'>&lt;-</span> <span class='s'>&quot;genome 1&quot;</span>
+show<span class='p'>(</span>genome.stats<span class='p'>)</span>
+</code></pre></div><div class='highlight'><pre><code class='text'>         total.length # scaffolds mean.length max.length   gc HPminus  HPplus tot.ess uni.ess
+genome 1      6823444          59      115652     701203 60.9    77.4       3     106     103
+</code></pre></div><div class='highlight'><pre><code class='r'>write.table<span class='p'>(</span>g1.s.C<span class='o'>$</span>name<span class='p'>,</span> file <span class='o'>=</span> <span class='s'>&quot;genome1.txt&quot;</span><span class='p'>,</span> quote <span class='o'>=</span> <span class='k-Variable'>F</span><span class='p'>,</span> row.names <span class='o'>=</span> <span class='k-Variable'>F</span><span class='p'>,</span> col.names <span class='o'>=</span> <span class='k-Variable'>F</span><span class='p'>)</span>
+</code></pre></div>
+<p><a href='step10.html'>Next: Paired-end read tracking</a></p>
         </section>
         <aside id="sidebar">
   <p>
@@ -43,7 +376,7 @@
     <a href="/multi-metagenome/docs/step1.html" class="button">-- Samples</a>
   </p>
   <p class=""> 
-    <a href="/docs/step3.html" class="button">-- Assembly</a>
+    <a href="/multi-metagenome/docs/step3.html" class="button">-- Assembly</a>
   </p>
   <p class=""> 
     <a href="/multi-metagenome/docs/step5.html" class="button">-- Data generation</a>
@@ -62,9 +395,6 @@
   </p>
   <p class=""> 
     <a href="/multi-metagenome/docs/faq.html" class="button">FAQ</a>
-  </p>
-  <p class=""> 
-    <a href="/multi-metagenome/docs/contact.html" class="button">Contact</a>
   </p>
 </aside>
 

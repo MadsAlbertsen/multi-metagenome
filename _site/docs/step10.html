@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="/css/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="http://madsalbertsen.github.io/multi-metagenome/css/stylesheet.css" media="screen" />
     <title>Multi-metagenome</title>
   </head>
 
@@ -15,7 +15,7 @@
   <div class="inner">
     <a id="forkme_banner" href="https://github.com/MadsAlbertsen/multi-metagenome">View on GitHub</a>
     <h1>
-      <a style="color: rgb(255,255,255)" href="/"> 
+      <a style="color: rgb(255,255,255)" href="/multi-metagenome"> 
       Multi-metagenome
     </h1>
     <h2>Recovery of complete genomes from metagenomes</h2>
@@ -30,7 +30,110 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <p>Step 10</p>
+          <h2 id='tracking_pairedend_reads'>Tracking paired-end reads</h2>
+
+<p>As some genes are present in multiple copies (e.g. 16S rRNA genes or transposases) they will not be included in the initial coverage-defined subset (see <a href='step9.html'>Binning</a>). Instead paired-end read information is used to associate multiple copy genes with the appropriate genome bin.</p>
+
+<h2 id='background'>Background</h2>
+
+<p>Paired-end (PE) reads are often generated when using the Illumina sequencing platform. DNA is fragmented into smaler pieces (200-700 bp) and then sequenced from each end. As the DNA fragments are larger than the length that can be sequenced, there will be unknown sequence between the two reads. However, the two reads originate from the same piece of DNA and can therefore be considered linked.</p>
+
+<p><img alt='PE definition' src='figure/PEdef.png' /></p>
+
+<p>Paired-end information is utilized in the process of scaffolding, where assembled contigs are merged into scaffolds based on PE links. Here <code>contig A</code> and <code>contig B</code> can be merged together into <code>scaffold AB</code> as they are connected by a PE read.</p>
+
+<p><img alt='PE connection' src='figure/PEcon.png' /></p>
+
+<p>Now consider the case where we have a repeat in the genome (i.e. a piece of DNA in multiple copies that can&#8217;t be spanned by PE reads). Here we can not make a scaffold as we do not know if it should be <code>scaffold CE</code> or <code>scaffold CF</code> and <code>scaffold DE</code> or <code>scaffold DF</code>. However, we do know that the repeat is associated with contigs <code>E</code>, <code>C</code>, <code>D</code> and <code>F</code> and can therefore be said to originate from the same genome.</p>
+
+<p><img alt='PE repeat' src='figure/PErepeat.png' /></p>
+
+<p>It&#8217;s not just repeats that can be identified in this way. Short contigs can by chance (or extreme GC content) have a coverage that is significant different from the rest of the genome and therefore be excluded in the initial coverage defined bin. These can normally be picked up in through tracking of PE reads.</p>
+
+<h2 id='generating_pe_connections'>Generating PE connections</h2>
+
+<p>The only file needed is a <a href='http://samtools.sourceforge.net/'>SAM file</a> of the read mappings to the assembled scaffolds, which is produced by most read mapping tools. The SAM file contains all information of the allignment of each specific read to the assembled scaffolds. The script takes a very simple approach to identifying PE reads. It assumes a read naming structure of <code>read1_1</code> and <code>read1_2</code>. A full readname of a Illumina PE read pair can be seen below, note that the readname prior to the underscore is identical between the two reads.</p>
+<div class='highlight'><pre><code class='text'>HWI-ST1040:48:c06lnacxx:2:1101:7493:111092_1:N:0:CAGATC
+HWI-ST1040:48:c06lnacxx:2:1101:7493:111092_2:N:0:CAGATC
+</code></pre></div>
+<h3 id='running_the_script'>Running the script</h3>
+
+<p>The script <code>cytoscapeviz.pl</code> searches through the SAM file and identifies PE connections. The output is a file that states which scaffolds that are linked together. There are a few options that can be used to control the output:</p>
+
+<p><code>f</code> controls the minimum number of connections between scaffolds needed to call a link. In the example below at least 2 PE links are needed before the scaffolds are reported to be linked.</p>
+
+<p><code>e</code> is used to only select links that map to the ends of the scaffolds, -<code>e</code> 500 means that only PE links mapping within 500 bp of each end is used to call links between scaffolds.</p>
+
+<p><code>m</code> is used to set a minimum length of scaffolds that are reported to be circular, i.e. where a PE read pair map to each end of the same scaffold.</p>
+
+<p><code>a</code> is the average length of the reads and is used to calculate the coverage for each scaffold.</p>
+
+<p><code>c</code> is a flag to get an additional condensed output. By default <code>cytoscapeviz.pl</code> generates connections for each end of all scaffolds. E.g. <code>scaffold 1</code> will be represented by the nodes <code>scaffold 1 start</code> and <code>scaffold 1 end</code>, however this can be a little messy to look at. Instead <code>c</code> is a flag stating that an additional condensed output should be made, where all scaffolds are represented by a single node (e.g. <code>scaffold 1</code>) instead of a start and end node. Always start by looking at the condensed output.</p>
+<div class='highlight'><pre><code class='text'>perl multi-metagenome/cytoscapeviz/cytpscapeviz.pl -i exampledata/mygenome.mapping.sam -f 2 -e 500 -m 3000 -a 125 -c
+</code></pre></div>
+<h3 id='output'>Output</h3>
+
+<p>A minimal example SAM file is provided in <code>cytoscapeviz/exampledata</code>. It contains the mapping of reads to 2 contigs in order to show the princpiple of the script. The above command generates the following files <code>cytoscape.connections.tab</code>, <code>cytoscape.coverage.tab</code> and <code>cytoscape.length.tab</code> along with a <code>condensed.-</code> version of the same 3 files.</p>
+
+<p>The <code>.connections.</code> file contain the actual links between scaffolds which can be visualized in Cytoscape. It simply states that <code>contig1</code> and <code>contig2</code>are linked by 12 PE reads.</p>
+<div class='highlight'><pre><code class='text'>  node1  interaction    node2  connections
+contig1	           0  contig2	        12
+</code></pre></div>
+<p>The <code>.coverage.</code> and <code>.length.</code> files are used to add attributes to the nodes (scaffolds) in Cytoscape.</p>
+
+<h2 id='visualising_pe_connections_using_cytoscape'>Visualising PE connections using Cytoscape</h2>
+
+<p>To visualise the connections we use the great open source tool <a href='http://www.cytoscape.org/'>Cytoscape</a>. The output files are written for Cytoscape version 2.8.3, but also works for 3.0.</p>
+
+<h3 id='load_the_data_into_cytoscape'>Load the data into Cytoscape</h3>
+
+<p>As an example of a real network we have added the full condensed network from the paper in the folder <code>cytoscapeviz/full.albertsen.connection.network</code>. The network contains 57500 nodes and 42259 edges. To import the network in Cytoscape 2.8.3 use <code>File</code> -&gt; <code>Import</code> -&gt; <code>Network from Table</code>. Select the <code>.connections.</code> file and choose <code>source interaction</code> as <code>column 1</code>, <code>interaction type</code> as <code>column 2</code> and <code>target interaction</code> as <code>column 3</code>. In addition you can use <code>Show Text File Import Options</code> to transfer the first row as column names. Clicking on <code>column 4</code> loads the number of connections as attributes to the <code>edges</code> between the <code>nodes</code>.</p>
+
+<p>The <code>.length.</code> and <code>.coverage.</code> attritubes are loaded using <code>File</code> -&gt; <code>Import</code> -&gt; <code>Node attributes</code>. The file structure is very simple, which makes it easy to generate additional attribute files, e.g. using GC or taxonomy of essential genes, which can be exported from R.</p>
+<div class='highlight'><pre><code class='text'>Contiglength
+contig1 = 11661
+contig2 = 15454
+</code></pre></div>
+<h3 id='generate_an_overview_visualization'>Generate an overview visualization</h3>
+
+<p>To generate the network right-click on the loaded network and press <code>create view</code>. To generate a nice overview of the network use <code>Layout</code> -&gt; <code>Cytoscape Layouts</code> -&gt; <code>Force-Directed Layout</code> -&gt; <code>unweighted</code>. Note: you might need to <a href='http://wiki.cytoscape.org/How_to_increase_memory_for_Cytoscape'>increase the memory for Cytoscape</a> to apply the layout. This should generate the network show below (only the top row of clusters are shown).</p>
+
+<p><img alt='Basic connections' src='figure/con1.png' /></p>
+
+<h3 id='using_attributes_to_color_the_network'>Using attributes to color the network</h3>
+
+<p>To really use the network visualisation we have to add more information. First we scale the width of the <code>edges</code> by the number of connections through: <code>View</code> -&gt; <code>Open VizMapper</code> and then double click on <code>Edge Line Width</code> select <code>connections</code> and the <code>Mapping Type</code> as <code>Continuous Mapping</code>. You can now click the <code>Graphical View</code> to scale the edge line width with the numner of connections between the scaffolds.</p>
+
+<p>The <code>nodes</code> are scaled by their length using <code>Node Size</code> with the <code>Contiglength</code> attribute and <code>Continuous Mapping</code>. The <code>nodes</code> are colored by their coverage through <code>Node Color</code> using <code>Contigcoverage</code> and <code>Continuous Mapping</code>. In the image below the color scale is from blue (40x coverage) to green (350x coverage) to red (600x coverage).</p>
+
+<p><img alt='Colored connections' src='figure/con2.png' /></p>
+
+<p>The above small cluster of the network graph show several interesting things. First of all we have a group of connected scaffolds at a similar coverage (350x), which are connected through a high number of PE connections (i.e. wide edge lines). In addition, there seem to be a repeat (red, 600x coverage) in 2 copies that can be connected with the green scaffolds. There are also a number of low abundant scaffolds (blue, 40x) which are connected to the green scaffolds. This is a nice example of micro-diversity, where a low abundant strain (blue) interferes with the assembly of the high abundant strain (green) causing the assembly to be highly fragmented.</p>
+
+<h2 id='extracting_the_network_associated_with_a_specific_genome_bin'>Extracting the network associated with a specific genome bin</h2>
+
+<p>While the complex network graphs look impressive the main purpose of the network analysis is to investigate the genome bins produced in R (see <a href='step9.html'>Binning</a>). There are three typical use cases. First of all to include repeats not included in the initial coverage-defined bin. Secondly, to remove any scaffolds wrongly included in the bin and finally to guide the manually finishing process (E.g. most of the green scaffolds above can be manually merged, even though the assembler didn&#8217;t do it).</p>
+
+<p>The script <code>cytoscape.extract.sub.graph.using.list.pl</code> takes a list of scaffold names and searches through the <code>.connection.</code> file to identify all scaffolds associated to the scaffolds in the input list. In this example we use the Verrumicrobia genome bin (<code>genome1.txt</code>) that was extracted in the <a href='step9.html'>Binning section</a>. The file <code>genome1.txt</code> contains the names of the scaffolds included in the extracted bin and is used to extract the associated sub network.</p>
+<div class='highlight'><pre><code class='text'>perl cytoscape.extract.sub.graph.using.list.pl -c condensed.cytoscape.connections.tab -l genome1.txt
+</code></pre></div>
+<p>The script generates a few new files. <code>condensed.cytoscape.connections.tab.sub.txt</code> contains the sub network and the rather strange named file <code>genome1.txt.orginal.paint.cyto.txt</code> is an attribute file that makes it possible to identify the original scaffolds in the extracted network.</p>
+
+<p>The files are loaded into Cytoscape just as they were in the previous example. To identify the original <code>genome1.txt</code> scaffolds we use the <code>Node Shape</code> attribute to make all orginal scaffolds (<code>OrgScaffolds</code>) a different shape than the scaffolds that were just linked to them using <code>Discrete Mapping</code>.</p>
+
+<p><img alt='Veru connections' src='figure/veru.png' /></p>
+
+<p>The generated network show a few nice things. All scaffolds in the original bin are round, with a black outline. The network clusters to the right side are from the target Verrumicrobia. It&#8217;s easy to spot the three multicopy repeats as the red nodes with many connections. In addtion a number of short scaffolds have been included through the PE network analysis. The addition of the small scaffolds was also expected as we only used scaffolds &gt;5000 bp in the R binning part. In theory a complete genome should have connections between all scaffold ends. However, the coverage of the target genome was only 50x and by chance this will result in areas of very low coverage.</p>
+
+<p>Interestingly it can be seen that the large cluster to the left only contains two original scaffolds, the rest are huge scaffolds that were not in the initial bin (<code>genome1.txt</code>). Hence, it migth be that those two scaffolds were worngly included in the bin through R. To check this we simply mark the two scaffolds red in the R plot used for extraction (see below). The two scaffolds cluster quite distantly to the rest of the scaffolds and do indeed belong to another genome.</p>
+
+<p><img alt='Veru PCA' src='figure/veruPCA.png' /></p>
+
+<h2 id='tips_and_tricks'>Tips and tricks</h2>
+
+<p>Tip 1: The network analysis works much better with matepair data. Top 2: You can often spot plasmids and circular phages as a single node that links to itself.</p>
+
+<p><a href='step11.html'>Next: Reassembly</a></p>
         </section>
         <aside id="sidebar">
   <p>
@@ -43,7 +146,7 @@
     <a href="/multi-metagenome/docs/step1.html" class="button">-- Samples</a>
   </p>
   <p class=""> 
-    <a href="/docs/step3.html" class="button">-- Assembly</a>
+    <a href="/multi-metagenome/docs/step3.html" class="button">-- Assembly</a>
   </p>
   <p class=""> 
     <a href="/multi-metagenome/docs/step5.html" class="button">-- Data generation</a>
@@ -62,9 +165,6 @@
   </p>
   <p class=""> 
     <a href="/multi-metagenome/docs/faq.html" class="button">FAQ</a>
-  </p>
-  <p class=""> 
-    <a href="/multi-metagenome/docs/contact.html" class="button">Contact</a>
   </p>
 </aside>
 

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="/css/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="http://madsalbertsen.github.io/multi-metagenome/css/stylesheet.css" media="screen" />
     <title>Multi-metagenome</title>
   </head>
 
@@ -15,7 +15,7 @@
   <div class="inner">
     <a id="forkme_banner" href="https://github.com/MadsAlbertsen/multi-metagenome">View on GitHub</a>
     <h1>
-      <a style="color: rgb(255,255,255)" href="/"> 
+      <a style="color: rgb(255,255,255)" href="/multi-metagenome"> 
       Multi-metagenome
     </h1>
     <h2>Recovery of complete genomes from metagenomes</h2>
@@ -30,25 +30,23 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <h1 id='update_test_2'>Update test 2</h1>
-
-<p>This project contains scripts and tutorials on how to assemble individual microbial genomes from metagenomes, as described in:</p>
+          <p>This project contains scripts and tutorials on how to assemble individual microbial genomes from metagenomes, as described in:</p>
 
 <p><strong>Genome sequences of rare, uncultured bacteria obtained by differential coverage binning of multiple metagenomes</strong></p>
 
-<p>Mads Albertsen, Philip Hugenholtz, Adam Skarshewski, Gene W. Tyson, Kåre L. Nielsen and Per .H. Nielsen</p>
+<p><a href='http://personprofil.aau.dk/120257'>Mads Albertsen</a>, <a href='http://ecogenomic.org/users/phil-hugenholtz'>Philip Hugenholtz</a>, <a href='http://ecogenomic.org/users/adam-skarshewski'>Adam Skarshewski</a>, <a href='http://www.ecogenomic.org/users/gene-tyson'>Gene W. Tyson</a>, <a href='http://personprofil.aau.dk/103057'>Kåre L. Nielsen</a> and <a href='http://personprofil.aau.dk/105842'>Per .H. Nielsen</a></p>
 
-<p>Nature Biotechnology 2013, doi: XX</p>
+<p>Nature Biotechnology 2013, doi: <a href='http://www.nature.com/nbt/journal/vaop/ncurrent/abs/nbt.2579.html'>10.1038/nbt.2579</a></p>
 
 <h2 id='what_is_differential_coverage_binning'>What is differential coverage binning?</h2>
 
 <p>Differential coverage binning refers to the use of the abundance of the bacteria in the samples as the primary method of extracting genomes from metagenomes. This is compared to many other binning methods where sequence composition (e.g. tetranucleotide patterns) is used for binning, which is hampered by local sequence deviations within genomes.</p>
 
-<p>The great advantage of using abundance is that it allows us to use abundance estimates from multiple samples, thereby increasing the binning resolution greatly. Given that sequencing prices continiues to drop it is already now cheaper to generate data than to analyse it.</p>
+<p>The great advantage of using abundance is that it allows the use of abundance estimates from multiple samples, thereby increasing the binning resolution greatly. Given that sequencing prices continiues to drop it is already cheaper to generate data than to analyse it.</p>
 
 <h2 id='stepbystep_guide'>Step-by-step guide</h2>
 
-<p>The <a href='docs/overview.html'>guide</a> coveres all aspects, from which samples that can be used, to binning, finishing and validation of the extracted genomes. <a href='http://www.rstudio.com/'>Rstudio</a> (a powerfull IDE to <a href='http://www.r-project.org/'>R</a>) is used as the main tool for data handling as it allows integration of all relevant data, which is key for dealing with large and complex datasets. The guide to binning in R is also available in R markdown format here(add link), which allows direct recreation of the binning steps in R from the original processed data used in the paper.</p>
+<p>The <a href='docs/overview.html'>guide</a> covers all aspects, from which samples that can be used, to binning, finishing and validation of the extracted genomes. <a href='http://www.rstudio.com/'>Rstudio</a> (a powerfull IDE to <a href='http://www.r-project.org/'>R</a>) is used as the main tool for data handling as it allows integration of all relevant data, which is key for dealing with large and complex datasets. The guide to binning in R is also available in R markdown format <a href='https://github.com/MadsAlbertsen/multi-metagenome/tree/master/R.markdown.guide'>here</a>, which allows direct recreation of all figures in the <a href='docs/overview.html'>guide</a> using the original data from the paper.</p>
 
 <p>In the <a href='docs/overview.html'>overview</a> section a short description of the workflow is given, along with a detailed workflow figure that summarise the different steps in the process of assembling individual genomes from metagenomes.</p>
 
@@ -71,7 +69,7 @@
     <a href="/multi-metagenome/docs/step1.html" class="button">-- Samples</a>
   </p>
   <p class=""> 
-    <a href="/docs/step3.html" class="button">-- Assembly</a>
+    <a href="/multi-metagenome/docs/step3.html" class="button">-- Assembly</a>
   </p>
   <p class=""> 
     <a href="/multi-metagenome/docs/step5.html" class="button">-- Data generation</a>
@@ -90,9 +88,6 @@
   </p>
   <p class=""> 
     <a href="/multi-metagenome/docs/faq.html" class="button">FAQ</a>
-  </p>
-  <p class=""> 
-    <a href="/multi-metagenome/docs/contact.html" class="button">Contact</a>
   </p>
 </aside>
 

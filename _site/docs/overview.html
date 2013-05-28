@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="/css/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="http://madsalbertsen.github.io/multi-metagenome/css/stylesheet.css" media="screen" />
     <title>Multi-metagenome</title>
   </head>
 
@@ -15,7 +15,7 @@
   <div class="inner">
     <a id="forkme_banner" href="https://github.com/MadsAlbertsen/multi-metagenome">View on GitHub</a>
     <h1>
-      <a style="color: rgb(255,255,255)" href="/"> 
+      <a style="color: rgb(255,255,255)" href="/multi-metagenome"> 
       Multi-metagenome
     </h1>
     <h2>Recovery of complete genomes from metagenomes</h2>
@@ -32,27 +32,27 @@
         <section id="main-content">
           <h2 id='stepbystep_guide'>Step-by-step guide</h2>
 
-<p>Overview of the pipeline to obtain high quality population genomes from multiple deep metagenomes using differential coverage as the primary binning method.</p>
+<p>Overview of the approach to obtain high quality population genomes from multiple deep metagenomes using differential coverage as the primary binning method.</p>
 
-<p><img alt='workflow' src='/images/workflow.png' /></p>
+<p><img alt='workflow' src='../images/workflow.png' /></p>
 
 <h3 id='samples_sequencing_and_assembly'>Samples, sequencing and assembly</h3>
 
-<p>At least two different samples are needed, which contians the target organisms in different abundances (<a href='/docs/step1.html'>step 1+2</a>). Each sample is then independently shotgun-sequenced followed by a combined de novo assembly (<a href='/docs/step3.html'>step 3+4</a>).</p>
+<p>At least two different samples are needed, which contians the target organisms in different abundances (<a href='step1.html'>step 1+2</a>). Each sample is then independently shotgun-sequenced followed by a combined de novo assembly (<a href='step3.html'>step 3+4</a>).</p>
 
 <h3 id='collect_all_information_available_for_each_scaffold'>Collect all information available for each scaffold</h3>
 
-<p>In <a href='/docs/step5.html'>step 5-8</a> all data is prepared for subsequent analyis in R. The main focus of the method is data integration, which allow informed choices in the binning process. Differential coverage is calculated by independently mapping the reads from each metagenome to the de novo assembled scaffolds, hence generating two abundance estimates (coverage) per scaffold.</p>
+<p>In <a href='step5.html'>step 5-8</a> all data is prepared for subsequent analyis in R. The main focus of the approach is data integration, which allow informed choices in the binning process. Differential coverage is calculated by independently mapping the reads from each metagenome to the de novo assembled scaffolds, hence generating two abundance estimates (coverages) per scaffold.</p>
 
 <h3 id='extract_all_reads_associated_with_a_bacterium_of_interest'>Extract all reads associated with a bacterium of interest</h3>
 
-<p>Binning (clustering) of scaffolds into population genomes is done by plotting the two coverage estimates (one from each metagenome) against each other for all scaffolds using Rstudio (<a href='/docs/step9.html'>step 9</a>). Scaffold subsets clustering together represents putative population genomes and are extracted as initial bins. As multiple species can be present in the same coverage-defined subset, the selected scaffold subset is further refined using principle component analysis of tetranucleotide frequencies. All data is integrated in R, thereby enabling the use of essential and single copy genes directly in the binning process.</p>
+<p>Binning (clustering) of scaffolds into population genomes is done by plotting the two coverage estimates (one from each metagenome) against each other for all scaffolds using Rstudio (<a href='step9.html'>step 9</a>). Scaffold subsets clustering together represents putative population genomes and are extracted as initial bins. As multiple species can be present in the same coverage-defined subset, the selected scaffold subset is further refined using principle component analysis of tetranucleotide frequencies. All data is integrated in R, thereby enabling the use of essential and single copy genes directly in the binning process.</p>
 
-<p>As some genes are present in multiple copies (e.g. 16S rRNA or transposases) they will not be included in the initial coverage-defined subset. Instead paired-end read information is used to associate multiple copy genes with the appropriate genome bin (<a href='/docs/step10.html'>step 10</a>).</p>
+<p>As some genes are present in multiple copies (e.g. 16S rRNA or transposases) they will not be included in the initial coverage-defined subset. Instead paired-end read information is used to associate multiple copy genes with the appropriate genome bin (<a href='step10.html'>step 10</a>).</p>
 
 <h3 id='reassembly_and_finishing'>Reassembly and finishing</h3>
 
-<p>All reads associated with a genome bin of interest are extracted and re-assembled using parameters optimised for each genome as the bins now can be treated as standard single genomes (<a href='/docs/step11.html'>step 11</a>). Population genome assemblies are validated using conserved single copy gene analysis, and through <a href='http://circos.ca/'>Circos</a> in which all relevant assembly metrics are integrated to identify mis-assemblies and other structural problems (<a href='/docs/step12.html'>step 12</a>).</p>
+<p>All reads associated with a genome bin of interest are extracted and re-assembled using parameters optimised for each genome as the bins now can be treated as standard single genomes (<a href='step11.html'>step 11</a>). Population genome assemblies are validated through analysis of conserved single copy genes, and through <a href='http://circos.ca/'>Circos</a> in which all relevant assembly metrics are integrated to identify mis-assemblies and other structural problems (<a href='step12.html'>step 12</a>).</p>
 
 <p>All data generation and integration is automated and can be carried out using a FastA file of the assembled scaffolds and SAM files of the read mappings to the scaffolds.</p>
         </section>
@@ -67,7 +67,7 @@
     <a href="/multi-metagenome/docs/step1.html" class="button">-- Samples</a>
   </p>
   <p class=""> 
-    <a href="/docs/step3.html" class="button">-- Assembly</a>
+    <a href="/multi-metagenome/docs/step3.html" class="button">-- Assembly</a>
   </p>
   <p class=""> 
     <a href="/multi-metagenome/docs/step5.html" class="button">-- Data generation</a>
@@ -86,9 +86,6 @@
   </p>
   <p class=""> 
     <a href="/multi-metagenome/docs/faq.html" class="button">FAQ</a>
-  </p>
-  <p class=""> 
-    <a href="/multi-metagenome/docs/contact.html" class="button">Contact</a>
   </p>
 </aside>
 

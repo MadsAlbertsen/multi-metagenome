@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="/css/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="http://madsalbertsen.github.io/multi-metagenome/css/stylesheet.css" media="screen" />
     <title>Multi-metagenome</title>
   </head>
 
@@ -15,7 +15,7 @@
   <div class="inner">
     <a id="forkme_banner" href="https://github.com/MadsAlbertsen/multi-metagenome">View on GitHub</a>
     <h1>
-      <a style="color: rgb(255,255,255)" href="/"> 
+      <a style="color: rgb(255,255,255)" href="/multi-metagenome"> 
       Multi-metagenome
     </h1>
     <h2>Recovery of complete genomes from metagenomes</h2>
@@ -34,18 +34,18 @@
 
 <p>This section describes how to generate all data needed for subsequent binning in R. The data generation is divided into a few small scripts in order to allow flexiblity in the choice of tools used. The important part is not which tools are used, but that all the data is integrated in R subsequently.</p>
 
-<p>For each scaffold the following information is generated: <code>gc content</code>, <code>kmer frequency</code>, <code>essential genes</code>, <code>essential genes taxonomy</code>. The full processed dataset used in the paper can be obtained from <a href='https://dl.dropbox.com/s/989dix16ugyuvrq/Albertsen2013.data.tar.gz'>here</a>.</p>
+<p>For each scaffold the following information is generated: <code>gc content</code>, <code>kmer frequency</code>, <code>essential genes</code> and <code>essential genes taxonomy</code>. The full processed dataset used in the paper can be obtained from <a href='https://dl.dropbox.com/s/989dix16ugyuvrq/Albertsen2013.data.tar.gz'>here</a>.</p>
 
 <h3 id='dependencies'>Dependencies</h3>
 
-<p>A few programs are used in the data generation and hence needs to be installed: <a href='http://bioinformatics.oxfordjournals.org/content/28/17/2223.abstract'>MetaProdigal</a>, <a href='http://hmmer.janelia.org/'>HMMER 3.0</a>, <a href='http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download'>BLAST</a> and <a href='http://ab.inf.uni-tuebingen.de/software/megan/'>MEGAN</a>.</p>
+<p>A few programs are used in the data generation process and hence needs to be installed: <a href='http://bioinformatics.oxfordjournals.org/content/28/17/2223.abstract'>MetaProdigal</a>, <a href='http://hmmer.janelia.org/'>HMMER 3.0</a>, <a href='http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download'>BLAST</a> and <a href='http://ab.inf.uni-tuebingen.de/software/megan/'>MEGAN</a>.</p>
 
 <h2 id='for_the_impatient'>For the impatient</h2>
 
 <p>Download the multi-metagenome scripts. The easy way is to clone the github repository:</p>
 <div class='highlight'><pre><code class='text'>git clone git://github.com/MadsAlbertsen/multi-metagenome.git
 </code></pre></div>
-<p>The shell script <code>workflow.R.data.generation.sh</code> in the <strong>R.data.generation</strong> folder wraps the individual steps. It assumes that the de novo assembly is named assembly.fa and present in the same folder as the script. Assuming you are in the same folder as where you downloaded the <strong>multi-metagenome</strong> folder, copy the shell script and then run it:</p>
+<p>The shell script <code>workflow.R.data.generation.sh</code> in the <strong>R.data.generation</strong> folder wraps the individual steps. It assumes that the de novo assembly is named <code>assembly.fa</code> and present in the same folder as the script. Assuming you are in the same folder as where you downloaded the <strong>multi-metagenome</strong> folder, copy the shell script and then run it:</p>
 <div class='highlight'><pre><code class='text'>cp multi-metagenome/R.data.generation/workflow.R.data.generation.sh .
 sh workflow.R.data.generation.sh
 </code></pre></div>
@@ -83,7 +83,7 @@ cut -f1 -f “ “ temp.orfs.faa &gt; assembly.orfs.faa
 <div class='highlight'><pre><code class='text'>hmmsearch --tblout assembly.hmm.orfs.txt --cut_tc --notextw multi-metagenome/R.data.generation/essential.hmm assembly.orfs.faa
 tail -n+4 assembly.hmm.orfs.txt | sed &#39;s/ * / /g&#39; | cut -f1,4 -d &quot; &quot; &gt; assembly.orfs.hmm.id.txt
 </code></pre></div>
-<p>The file <code>assembly.hmm.orfs.txt</code> contains information on all HMM positive ORFs. In order to get a fast overview of their taxonomic affiliation the names of the HMM positive ORFs are extracted (<code>list.of.positive.orfs.txt</code>), the sequence of the positive ORFs are extracted using <code>extract.using.header.list.pl</code> and then searched against the NCBI refseq_protein database using <a href='http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download'>BLAST</a>.</p>
+<p>The file <code>assembly.hmm.orfs.txt</code> contains information on all HMM positive ORFs. In order to get a fast overview of their taxonomic affiliation the names of the HMM positive ORFs are extracted (<code>list.of.positive.orfs.txt</code>), the sequence of the positive ORFs are extracted using <code>extract.using.header.list.pl</code> and then searched against the NCBI refseq database using <a href='http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download'>BLAST</a>.</p>
 <div class='highlight'><pre><code class='text'>tail -n+4 assembly.hmm.orfs.txt | cut -f1 -d &quot; &quot; &gt; list.of.positive.orfs.txt
 perl multi-metagenome/R.data.generation/extract.using.header.list.pl -l list.of.positive.orfs.txt -s assembly.orfs.faa -o assembly.orfs.hmm.faa
 blastp -query assembly.orfs.hmm.faa -db refseq_protein -evalue 1e-5 -num_threads 60 -max_target_seqs 5 -outfmt 5 -out assembly.orfs.hmm.blast.xml
@@ -95,7 +95,7 @@ sed &#39;s/\t/;/&#39; assembly.orfs.hmm.blast.tax.txt | cut -f1,5 -d &quot;;&quo
 <p>As the essential proteins are also used for guiding the binning process it is needed to aggregate the protein results to scaffold level. However, as large scaffolds often contain multiple marker proteins the script <code>hmm.majority.vote.pl</code> is used to find the consensus taxonomic assignment on scaffold level (<code>assembly.tax.consensus.txt</code>).</p>
 <div class='highlight'><pre><code class='text'>perl multi-metagenome/R.data.generation/hmm.majority.vote.pl -i assembly.orfs.hmm.blast.tax.txt -o assembly.tax.consensus.txt -n
 </code></pre></div>
-<p><a href='/docs/step9.html'>Next: Binning using R</a></p>
+<p><a href='step9.html'>Next: Binning using R</a></p>
         </section>
         <aside id="sidebar">
   <p>
@@ -108,7 +108,7 @@ sed &#39;s/\t/;/&#39; assembly.orfs.hmm.blast.tax.txt | cut -f1,5 -d &quot;;&quo
     <a href="/multi-metagenome/docs/step1.html" class="button">-- Samples</a>
   </p>
   <p class=""> 
-    <a href="/docs/step3.html" class="button">-- Assembly</a>
+    <a href="/multi-metagenome/docs/step3.html" class="button">-- Assembly</a>
   </p>
   <p class="current"> 
     <a href="/multi-metagenome/docs/step5.html" class="button">-- Data generation</a>
@@ -127,9 +127,6 @@ sed &#39;s/\t/;/&#39; assembly.orfs.hmm.blast.tax.txt | cut -f1,5 -d &quot;;&quo
   </p>
   <p class=""> 
     <a href="/multi-metagenome/docs/faq.html" class="button">FAQ</a>
-  </p>
-  <p class=""> 
-    <a href="/multi-metagenome/docs/contact.html" class="button">Contact</a>
   </p>
 </aside>
 

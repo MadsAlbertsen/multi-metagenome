@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="/css/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="http://madsalbertsen.github.io/multi-metagenome/css/stylesheet.css" media="screen" />
     <title>Multi-metagenome</title>
   </head>
 
@@ -15,7 +15,7 @@
   <div class="inner">
     <a id="forkme_banner" href="https://github.com/MadsAlbertsen/multi-metagenome">View on GitHub</a>
     <h1>
-      <a style="color: rgb(255,255,255)" href="/"> 
+      <a style="color: rgb(255,255,255)" href="/multi-metagenome"> 
       Multi-metagenome
     </h1>
     <h2>Recovery of complete genomes from metagenomes</h2>
@@ -32,7 +32,7 @@
         <section id="main-content">
           <h2 id='sequencing'>Sequencing</h2>
 
-<p>We normally sequence <code>2x150 bp reads</code> on the Illumina HiSeq2000 platfrom, using the nextera paired-end protocol (PE, 200-700 bp insert size). While PE libraries are enough for the assembly itself and enables recovery of the complete genome, mate-pair libraries (MP, &gt;2 kbp insert size) are extremely valuable in order to obtain the genomes in a single chromosome. The vast majority of repeats in bacterial genomes are due to transpoases (1-1.5 kbp) which can be spanned by MP libraries.</p>
+<p>We normally sequence <code>2x150 bp reads</code> on the Illumina HiSeq2000 platfrom, using the nextera paired-end protocol (PE, 200-700 bp insert size). While PE libraries are enough for the assembly itself and enables recovery of complete genomes, mate-pair libraries (MP, &gt;2 kbp insert size) are extremely valuable in order to obtain the genomes in a single chromosome. The vast majority of repeats in bacterial genomes are due to transpoases (1-1.5 kbp) which can be spanned by MP libraries.</p>
 
 <h3 id='how_much_sequencing_is_needed'>How much sequencing is needed?</h3>
 
@@ -44,7 +44,7 @@
 
 <h2 id='assembly'>Assembly</h2>
 
-<p>We use <a href='http://www.clcbio.com/'>CLC genomics workbench</a> for all trimming, assembly and read mapping out of convinience, but all parts can be substituted with open source tools.</p>
+<p>We use <a href='http://www.clcbio.com/'>CLC genomics workbench</a> for all trimming, assembly and read mapping, but all parts can be substituted with open source tools.</p>
 
 <h3 id='trimming'>Trimming</h3>
 
@@ -62,7 +62,7 @@ A minimum read length of 50 bp
 
 <p>However, the main problem in metagenome assembly is the presence of multiple closely realted strains, which acts like poison to the assemblers. Although several groups are trying to tackle this, there is to our knowledge no good bioinformatic solution.</p>
 
-<p><a href='/docs/step5.html'>Next: Data generation</a></p>
+<p><a href='step5.html'>Next: Data generation</a></p>
         </section>
         <aside id="sidebar">
   <p>
@@ -75,7 +75,7 @@ A minimum read length of 50 bp
     <a href="/multi-metagenome/docs/step1.html" class="button">-- Samples</a>
   </p>
   <p class="current"> 
-    <a href="/docs/step3.html" class="button">-- Assembly</a>
+    <a href="/multi-metagenome/docs/step3.html" class="button">-- Assembly</a>
   </p>
   <p class=""> 
     <a href="/multi-metagenome/docs/step5.html" class="button">-- Data generation</a>
@@ -94,9 +94,6 @@ A minimum read length of 50 bp
   </p>
   <p class=""> 
     <a href="/multi-metagenome/docs/faq.html" class="button">FAQ</a>
-  </p>
-  <p class=""> 
-    <a href="/multi-metagenome/docs/contact.html" class="button">Contact</a>
   </p>
 </aside>
 
