@@ -93,7 +93,7 @@ e <- e[, -c(10, 11)]
 {% endhighlight %}
 
 
-We now have 2 dataframes: `d` which contains data on the individual **scaffolds** and `e` which contains data on essential genes. We work with 2 seperate dataframes as each scaffold can contain multiple essential genes.
+We now have 2 dataframes: `d` which contains data on the individual **scaffolds** and `e` which contains data on **essential genes**. We work with 2 seperate dataframes as each scaffold can contain multiple essential genes.
 
 The `d` dataframe contains the following information:
 
@@ -109,9 +109,9 @@ name length    gc HPminus   HPplus         phylum tax.color                all.a
   10  13660 52.53  854.71   33.496     Firmicutes         8          Firmicutes;Firmicutes
 {% endhighlight %}
 
-Where `name` is the name of the scaffold. `HPminus` is the coverage of the scaffold in the sample HPminus and `HPplus` is the coverage of the scaffold in the sample HPplus. `phylum` is the consensus phylum level assignement of the essential genes found on the scaffold. `tax.color` is a variable used for coloring and is arrange by decreasing number of essential genes. In this case there is most essential genes assigned to proteobacteria, hence it has the `tax.color` value of 1. `all.assignments` contains all taxonomic assignments for the essential genes found on the scaffold, seperated by ';'. 
+Where `name` is the name of the scaffold. `HPminus` is the coverage of the scaffold in the sample HPminus and `HPplus` is the coverage of the scaffold in the sample HPplus. `phylum` is the consensus phylum level assignement of the essential genes found on the scaffold. `tax.color` is a variable used for coloring and is arrange by decreasing number of essential genes in the total dataset. In this case there are most essential genes assigned to proteobacteria, hence it has the `tax.color` value of 1. `all.assignments` contains all taxonomic assignments for the essential genes found on the scaffold, seperated by ';'. 
 
-The `e` datafram contains the following information:
+The `e` dataframe contains the following information:
 
 {% highlight r %}
 e[2:4, ]
@@ -171,9 +171,9 @@ tot.ess           8311
 uni.ess            108
 {% endhighlight %}
 
-`tot.ess` is the total number of essential genes identified, where `uni.ess` is the number of unique essential genes. 
+`tot.ess` is the total number of essential genes identified and `uni.ess` is the number of unique essential genes. 
 
-To get an initial overview of the data we only use scaffolds > 5000 bp.
+To get an initial overview of the data we subset the original dataframes `d` and `e` to only contain scaffolds > 5000 bp and store the data in the dataframes `ds` and `es`.
 
 {% highlight r %}
 ds <- subset(d, length > 5000)
@@ -181,7 +181,7 @@ es <- subset(e, length > 5000)
 {% endhighlight %}
 
 
-### Coverage plots - Colored by GC
+### Coverage plot - Colored by GC
 The basic plot is the **differential coverage plot**. We simply take all scaffolds and plot the two coverage estimates `HPplus` and `HPminus` against each other. Each circle on the plot is a scaffold, scaled by it's length and colored according to GC content. We use the [ggplot2](http://ggplot2.org/) package to plot for easy generation of legends. Clusters of scaffolds with the same color (similar gc content) represents putative genome bins.
 
 
@@ -198,10 +198,10 @@ ggplot(ds, aes(x = HPminus, y = HPplus, color = gc, size = length))
 
 ![plot of chunk Overview - Coverage GC plot](figure/Overview-CoverageGCplot.png) 
 
-### Coverage plots - Colored by phylum level assignment of essential genes
-To further underline that the clusters represents putative genome bins we color all scaffolds containing essential genes. Using the `tax.color` variable. 
+### Coverage plot - Colored by phylum level assignment of essential genes
+To further underline that the clusters represents putative genome bins we color all scaffolds containing essential genes using the `tax.color` variable. 
 
-However to only color scaffolds from the 7 most abundant phyla we have to do a little workaround. The `tax.color` variable is sorted by abundance. E.g. tax.color = 1 is assigned to the phyla with most scaffolds assigned. Change the `t` parameter to include more or less phyla.
+However, to only color scaffolds from the 7 most abundant phyla we have to do a little workaround. The `tax.color` variable is sorted by abundance. E.g. tax.color = 1 is assigned to the phylum with most essential genes assigned. Change the `t` parameter to include more or less phyla.
 
 
 {% highlight r %}
@@ -244,7 +244,7 @@ Now for the fun part of actually extracting individual genomes from the metageno
 ### Zoom on the target genome
 Use the scaffolds with essential genes as a rough guide for selection of a subset of scaffolds that include the target genome. The non-target scaffolds will be removed in the next step.
 
-The locater function is used to interactively define a subspace on the plot. We do not use ggplot2 here as it is not compatible with the locator function. As locater is interactive - I've added the points maunally to allow recration of the full guide. Normally you run the command `def<-locator(100, type='p', pch=20)` and then interactively chose the subset on the plot - remember to click finish or hit `esc` when you have defined your subspace on the plot. The area defined by the selected points is extracted using the ahull function. 
+The `locator` function is used to interactively define a subspace on the plot. We do not use ggplot2 here as it is not compatible with the `locator` function. As `locator` is interactive - I've added the points maunally to allow recration of the full guide. Normally you run the command `def<-locator(100, type='p', pch=20)` and then interactively chose the subset on the plot - remember to click finish or hit `esc` when you have defined your subspace on the plot. The area defined by the selected points is extracted using the ahull function. 
 
 {% highlight r %}
 x <- "HPminus"
