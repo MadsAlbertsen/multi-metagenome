@@ -22,7 +22,7 @@ Now consider the case where we have a repeat in the genome (I.e. a piece of DNA 
 It's not just repeats that can be identified in this way. Short contigs can by chance (or extreme GC content) have a coverage that is significant different from the rest of the genome and therefore not included in the initial coverage defined bin. These can normally be picked up in through tracking of PE reads.
 
 ##Generating PE connections
-The only file needed is a [SAM file](http://samtools.sourceforge.net/) of the read mappings to the assembled scaffolds, which is produced by most read mapping tools. The SAM file contains all information of the allignment of each specific read to the assembled scaffolds. Note that the script is very simple in it's approach to identifying PE reads. It assumes a read naming structure of `read1_1` `read1_2` which is the default structure of the raw Illumina reads. A full readname of a Illumina PE read pair can be seen below, note that the readname prior to the underscore is identical between the two reads.
+The only file needed is a [SAM file](http://samtools.sourceforge.net/) of the read mappings to the assembled scaffolds, which is produced by most read mapping tools. The SAM file contains all information of the allignment of each specific read to the assembled scaffolds. Note that the script is very simple in it's approach to identifying PE reads. It assumes a read naming structure of `read1_1` and `read1_2` which is the default structure of the raw Illumina reads. A full readname of a Illumina PE read pair can be seen below, note that the readname prior to the underscore is identical between the two reads.
 
 {% highlight text%}
 HWI-ST1040:48:c06lnacxx:2:1101:7493:111092_1:N:0:CAGATC
@@ -30,7 +30,17 @@ HWI-ST1040:48:c06lnacxx:2:1101:7493:111092_2:N:0:CAGATC
 {% endhighlight %}
 
 ###Parameters 
-The script `cytoscapeviz.pl` searches through the SAM files and identifies reads that map to different scaffolds. The output is a file that states which scaffolds that are linked together. There are a few options that can be used to control the output. The `f` parameter controls the minimum number of connections between scaffolds needed to call a link. In the example below at least 2 PE links are needed before the scaffolds are reported to be linked. The `e` parameter is used to only select links that map to the ends of the scaffolds, `e` = 500 means that only PE links mapping within 500 bp of each end is used to call links between scaffolds. The `m` parameter is used to set a minimum length of scaffolds that are reported to be circular, i.e. where a PE read pair map to each end of the same scaffold. The `a` parameter is the average read length of the reads and is used to calculate a coverage for each scaffold (It could also be generated directly from the SAM file, but this simple speeds up the script a little). The last parameter is `c`. By default `cytoscapevis.pl` generates connections for each end of all scaffolds. E.g. `scaffold 1` will be represented by the nodes `scaffold 1 start` and `scaffold 1 end`, however this can be a little messy to look at initially. Instead `c` is a flag stating that an additional condensed output should be made, where all scaffolds are represented by a single node (e.g. `scaffold 1`) instead of a start and end node. Always start by looking at the condensed output.
+The script `cytoscapeviz.pl` searches through the SAM files and identifies reads that map to different scaffolds. The output is a file that states which scaffolds that are linked together. There are a few options that can be used to control the output. 
+
+`f` controls the minimum number of connections between scaffolds needed to call a link. In the example below at least 2 PE links are needed before the scaffolds are reported to be linked. 
+
+`e` is used to only select links that map to the ends of the scaffolds, `e` = 500 means that only PE links mapping within 500 bp of each end is used to call links between scaffolds. 
+
+`m` is used to set a minimum length of scaffolds that are reported to be circular, i.e. where a PE read pair map to each end of the same scaffold. 
+
+`a` is the average read length of the reads and is used to calculate a coverage for each scaffold (It could also be generated directly from the SAM file, but this simple speeds up the script a little). 
+
+`c` is a flag to get an additional condensed output. By default `cytoscapeviz.pl` generates connections for each end of all scaffolds. E.g. `scaffold 1` will be represented by the nodes `scaffold 1 start` and `scaffold 1 end`, however this can be a little messy to look at initially. Instead `c` is a flag stating that an additional condensed output should be made, where all scaffolds are represented by a single node (e.g. `scaffold 1`) instead of a start and end node. Always start by looking at the condensed output.
 
 {% highlight text%}
 perl \multi-metagenome\cytoscapeviz\cytpscapeviz.pl -i mapping.sam -f 2 -e 500 -m 3000 -a 125 -c
