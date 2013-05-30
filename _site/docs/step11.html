@@ -30,7 +30,39 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <h1 id='under_construction'>Under construction</h1>
+          <h2 id='reassembly'>Re-assembly</h2>
+
+<p>When a putative genome bin has been extracted it can often improve the assembly, i.e. reduce the number of scaffolds, if the reads associated with the bin are reassembled.</p>
+
+<p>The rationale behind reassembly is two things. First of all that the full metagenome was assembled with general parameters that wasn&#8217;t optimised for any particular genome. Hence, the assembly can be optimised with e.g. a <code>kmer</code> value that better fits the target genome. Secondly, re-assembling a subset of reads allows much better control of parameters that will limit the infulence of micro-diversity on the assembly.</p>
+
+<h3 id='extract_all_reads_associated_with_a_bin'>Extract all reads associated with a bin</h3>
+
+<p>To reassemble a putative genome bin, we first need to extract the associated reads. The script <code>extract.fasta.from.sam.using.list.pl</code> takes a list of scaffolds <code>s</code> (e.g. as the <code>genome1.txt</code> file exported in the <a href='step9.html'>Binning section</a>) and extracts all reads associated with these scaffolds from a SAM file <code>s</code>. The SAM file is the mapping of all metagenome reads to all assembled scaffolds (see <a href='step9.html'>PE tracking</a>). The output <code>o</code> is a fasta file with the reads that were mapped to the supplied scaffolds.</p>
+<div class='highlight'><pre><code class='text'>perl multi-metagenome/reassembly/extract.fasta.from.sam.using.list.pl -l list.of.scaffolds.txt -s mapping.sam -o reads.subset.fa
+</code></pre></div>
+<p>Using this approach we only get the reads that already mapped to the scaffolds, i.e. <code>Read1</code> in the figure below. However, we can use the mapped <code>Read1</code> to extract the associated <code>Read2</code>. This is important if we want to improve the assembly.</p>
+
+<p><img alt='Extract PE' src='figure/PEextract.png' /></p>
+
+<p>The script <code>extract.fasta.pe.reads.using.single.pl</code> takes the <code>reads.subset.fa</code> (<code>s</code>) that was extracted from the SAM file and extracts all associated read pairs in the original paried reads <code>p</code> (note: requires the paired reads in interleaved fasta format). The output is two fasta files <code>p1.fa</code> and <code>p2.fa</code>, which is <code>read1</code> and <code>read2</code> respectively.</p>
+<div class='highlight'><pre><code class='text'>perl multi-metagenome/reassembly/extract.fasta.pe.reads.using.single.pl -s reads.subset.fa -p all.paired.reads.fa 
+</code></pre></div>
+<h3 id='reassembly_of_the_extracted_reads'>Reassembly of the extracted reads</h3>
+
+<p>As all reads associated with the bin of interest have been extracted, they can now be reassembled using any standard genome assembler. For reassembly we often use <a href='http://www.ebi.ac.uk/~zerbino/velvet/'>velvet</a> as it gives more flexibility in tuning the assembly parameters compared to CLC and also since CLC currently only support a maximum <code>kmer of 63</code>. To reduce the impact of micro-diversity we normally try to assemble with a kmer as high as possible, e.g. a <code>kmer of 99</code>. The use of a large kmer does 2 things. First of all it increases the uniqeness of the kmers, which allows assembly of more closely related DNA regions. Secondly, it lowers the effective coverage of your dataset, whereby some of the low-abundant micro-diversity might get below the treshholds for interfering with the assembly.</p>
+
+<p>Note that you need to optimise all assembly parameters independently for each <code>kmer</code> as different <code>kmer</code> values changes the (kmer)-coverage.</p>
+
+<h2 id='automatic_gap_closing'>Automatic gap closing</h2>
+
+<p>Many assemblers leave gaps (N&#8217;s) in the scaffolds as they do not use a post-assembly gap filling module. We have recently started using the small tool <a href='http://genomebiology.com/2012/13/6/R56'>GapFiller</a>, which seem to work nicely.</p>
+
+<h2 id='other_assembly_tweaks'>Other assembly tweaks</h2>
+
+<p>If your target genome is in high coverage and have low abundant micro-diversity that interfers with the assembly. An easy improvement is simply to use less data. Removing reads below X abundance can also be done using the <a href='https://khmer.readthedocs.org/en/latest/#'>khmer</a> software.</p>
+
+<p><a href='step11.html'>Finishing</a>)</p>
         </section>
         <aside id="sidebar">
   <p>
@@ -79,6 +111,19 @@
   </div>
 </footer>
 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41280485-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
 
   </body>
 </html>
