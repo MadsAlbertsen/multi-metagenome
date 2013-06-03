@@ -8,7 +8,7 @@ When a putative genome bin has been extracted it can often improve the assembly,
 The rationale behind reassembly is two things. First of all the full metagenome was assembled with general parameters that wasn't optimised for any particular genome. Hence, the assembly can be optimised with e.g. a `kmer` value that better fits the target genome. Secondly, re-assembling a subset of reads allows much better control of parameters that will limit the infulence of micro-diversity on the assembly.
 
 ###Extract all reads associated with a bin
-To reassemble a putative genome bin, we first need to extract the associated reads. The script `extract.fasta.from.sam.using.list.pl` takes a list of scaffolds `l` (e.g. as the `genome1.txt` file exported in the [Binning section](step9.html)) and extracts all reads associated with these scaffolds from a SAM file `s`. The SAM file is the mapping of all metagenome reads to all assembled scaffolds (see [PE tracking](step9.html)). The output `o` is a fasta file with the reads that were mapped to the supplied scaffolds.
+To reassemble a putative genome bin, we first need to extract the associated reads. The script `extract.fasta.from.sam.using.list.pl` takes a list of scaffolds `l` (e.g. as the `genome1.txt` file exported in the [Binning section](step9.html)) and extracts all reads associated with these scaffolds from a SAM file `s`. The SAM file is the mapping of all metagenome reads to all assembled scaffolds (see [PE tracking](step10.html)). The output `o` is a fasta file with the reads that were mapped to the supplied scaffolds.
 
 {% highlight text%}
 perl multi-metagenome/reassembly/extract.fasta.from.sam.using.list.pl -l list.of.scaffolds.txt -s mapping.sam -o reads.subset.fa
@@ -33,6 +33,6 @@ Note that you need to optimise all assembly parameters independently for each `k
 Many assemblers leave gaps (N's) in the scaffolds as they do not use a post-assembly gap filling module. We have recently started using the small tool [GapFiller](http://genomebiology.com/2012/13/6/R56), which seem to work nicely.
 
 ##Other assembly tweaks
-If your target genome is in high coverage and have low abundant micro-diversity that interfers with the assembly. An easy improvement is simply to use less data. Removing reads below X abundance can also be done using the [khmer](https://khmer.readthedocs.org/en/latest/#) software. 
+If your target genome is in high coverage and have low abundant micro-diversity that interfers with the assembly an easy improvement is simply to use less data. Removing reads below X abundance can also be done using the [khmer](https://khmer.readthedocs.org/en/latest/#) software. 
 
-[Finishing](step11.html))
+[Next: Finishing](step11.html)
