@@ -55,7 +55,7 @@ As the HMM models are on protein level it is initially needed to call open readi
 
 {% highlight text%}
 prodigal -a temp.orfs.faa -i assembly.fa -m -o temp.txt -p meta -q
-cut -f1 -f “ “ temp.orfs.faa > assembly.orfs.faa
+cut -f1 -d “ “ temp.orfs.faa > assembly.orfs.faa
 {% endhighlight %}
 
 Essential proteins are identified using HMM models (`essential.hmm`) and the output reformatted for later use in R. The file `assembly.orfs.hmm.id.txt` is used later in R.
