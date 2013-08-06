@@ -1,0 +1,724 @@
+Wrighton data re-analysis
+========================================================
+
+### Download the R formatted data.
+
+Download and upack the Wrighton data used in Albertsen et al., 2013. 
+```{r Download_data}
+#download.file("https://dl.dropbox.com/s/irahp88uleuqzv6/wrighton.tar.gz", "wrighton.tar.gz", method = 'wget')
+#untar("wrighton.tar.gz")
+```
+
+***
+
+### Load needed packages
+
+In case you havn't installed all the needed packages, they can be installed via e.g. **install.packages('vegan')**. The version of R used to generate this file was:
+
+```{r Initial_R_version}
+R.version$version.string
+```
+
+```{r Initial_load_packages, message=F,warning=FALSE}
+library("vegan")
+library("plyr")
+library(RColorBrewer)
+library(alphahull)
+library(ggplot2)
+```
+
+***
+
+### Load files associated with the new de novo assembly of the Wrighton data
+
+All data except the three coverage estimates (**artur**, **dolly** and **chris**) can be automatically generated from a fasta file of the assembled scaffolds (**assembly.fa**) using the script: **workflow.R.data.generation.sh**. Coverage estimates for the scaffolds can be obtained through most short read mappers.
+
+```{r Initial_read_reassembly_data}
+artur <- read.csv("assembly/artur.csv", header = T)               
+dolly <- read.csv("assembly/dolly.csv", header = T)               
+chris <- read.csv("assembly/chris.csv", header = T)               
+
+gc <- read.delim("assembly/assembly.gc.tab", header = T)
+kmer <- read.delim("assembly/assembly.kmer.tab", header = T)
+ess <- read.table("assembly/assembly.orfs.hmm.id.txt", header = F)
+ess.tax <- read.delim("assembly/assembly.orfs.hmm.blast.tax.tab", header = F) 
+cons.tax <- read.delim("assembly/assembly.tax.consensus.txt", header = T)
+
+colnames(kmer)[1] = "name"
+colnames(ess) = c("name","orf","hmm.id")
+colnames(ess.tax) = c("name","orf","phylum")
+colnames(cons.tax) = c("name","phylum","tax.color","all.assignments")
+```
+
+Merge all data on scaffolds into a single data frame **d**.
+
+```{r Initial_combine_d}
+d <- as.data.frame(cbind(artur$Name, artur$Reference.length, gc$gc, artur$Average.coverage, dolly$Average.coverage, chris$Average.coverage), row.names = F)
+colnames(d) = c("name", "length", "gc", "artur", "dolly", "chris")
+d <- merge(d,cons.tax, by = "name", all = T)
+```
+
+Merge all data on essential genes into a single data frame **e**.
+
+```{r Initial_combine_e}
+e <- merge(ess, d, by = "name", all.x = T)
+e <- merge(e, ess.tax, by = c("name","orf"), all.x = T)
+```
+
+***
+
+### Load the original assembled data by Wrighton and the original wrighton bins. 
+
+I added the data as a simple single text file in the **org.wrigton** folder. The assembled sequences and original bins were obtained from [here](http://genegrabber.berkeley.edu/Rifle_ACD/organisms).
+
+```{r Initial_read_org_wrighton_data}
+w.d <- read.delim("org.wrighton/acd.genomes.txt", header = T)
+```
+
+***
+
+### Define a few functions for later use
+
+Calculate basic statistics on a set of scaffolds.
+
+```{r Initial_calc.genome.stats}
+genome.stats <- matrix(NA, nrow=0, ncol=10) 
+colnames(genome.stats) <- c("total.length","# scaffolds", "mean.length", "max.length", "gc", "artur", "dolly","chris","tot.ess", "uni.ess")
+
+calc.genome.stats <- function(x,y) matrix(c(sum(x$length), nrow(x), round(mean(x$length),1), max(x$length), round(sum((x$gc*x$length))/sum(x$length),1), round(sum((x$artur*x$length))/sum(x$length),1), round(sum((x$dolly*x$length))/sum(x$length),1), round(sum((x$chris*x$length))/sum(x$length),1), nrow(y), length(unique(y$hmm.id))),dimnames = list(colnames(genome.stats),""))
+```
+
+Extract a subset of scaffolds.
+
+```{r Initial_extract}
+extract <- function(x,a.def,v1,v2){
+  out <- {}
+  for (i in 1:nrow(x)) { if (inahull(a.def, c(v1[i],v2[i]))) out <- rbind(out,x[i,])}  
+  return(out)
+}
+```
+
+GC color scheme.
+
+```{r Initial_gc_color_scheme}
+rgb.c<- colorRampPalette(c('red','green','blue'))
+rgb.a<-adjustcolor(rgb.c(max(d$gc)-min(d$gc)),alpha.f=0.5)
+palette(rgb.a)
+```
+
+***
+
+## Initial overview of the data
+
+```{r Overview_stats}
+calc.genome.stats(d,e)
+```
+
+To get an initial overview of the data we only use scaffolds > 5000 bp.
+
+```{r Overview_subset}
+ds <- subset(d,length > 5000)                                                   
+es <- subset(e,length > 5000)
+```
+
+### Coverage plots - Colored by GC
+
+```{r Overview_coverage_gc_plot, fig.height=8, fig.width=12, warning=F}
+ggplot(ds, aes(x = artur, y = chris, color = gc, size = length)) + 
+  scale_x_log10(limits=c(0.5,200)) +
+  scale_y_log10(limits=c(1,300)) +
+  xlab("Coverage (artur)") +
+  ylab("Coverage (chris)") +
+  geom_point(alpha = 0.5) +
+  scale_size_area(name= "Scaffold length", max_size=10) +
+  scale_colour_gradientn(colours=c('red','green','blue'))
+```
+
+### Original Wrighton coverage plots - Colored by GC
+
+```{r Overview_subset_org_wrighton}
+w.ds <- subset(w.d,length > 5000)
+```
+
+```{r Overview_wrighton_coverage_gc_plot, fig.height=8, fig.width=12, warning=F}
+ggplot(w.ds, aes(x = artur, y = chris, color = gc, size = length)) + 
+  scale_x_log10(limits=c(0.5,200)) +
+  scale_y_log10(limits=c(1,300)) +
+  xlab("Coverage (artur)") +
+  ylab("Coverage (chris)") +
+  geom_point(alpha = 0.5) +
+  scale_size_area(name= "Scaffold length", max_size=10) +
+  scale_colour_gradientn(colours=c('red','green','blue'))
+```
+
+### Original Wrighton coverage plots - Colored by bins
+
+```{r Overview_wrighton_coverage_bin_plot, fig.height=8, fig.width=12, warning=F}
+ggplot(w.ds, aes(x = artur, y = chris, color = bin, size = length)) + 
+  scale_x_log10(limits=c(0.5,200)) +
+  scale_y_log10(limits=c(1,300)) +
+  xlab("Coverage (artur)") +
+  ylab("Coverage (chris)") +
+  geom_point(alpha = 0.5) +
+  scale_size_area(name= "Scaffold length", max_size=10)
+```
+
+### Looking at the 5 orginal OD1 bins from Wrighton
+
+```{r Overview_subset_OD1_wrighton_bins}
+w.d.od1 <- subset(w.d,bin == "ACD7" | bin == "ACD11" | bin == "ACD18" | bin == "ACD81" | bin == "ACD1")
+```
+
+```{r 5OD1_wrighton_coverage_bin_plot, fig.height=8, fig.width=12, warning=F}
+ggplot(w.d.od1, aes(x = artur, y = dolly, color = bin, size = length)) + 
+  scale_x_log10(limits=c(0.5,200)) +
+  scale_y_log10(limits=c(1,300)) +
+  xlab("Coverage (artur)") +
+  ylab("Coverage (chris)") +
+  geom_point(alpha = 0.5) +
+  scale_size_area(name= "Scaffold length", max_size=10)
+```
+
+***
+
+## Genome extraction
+
+### ACD7 (ID1)
+
+```{r ACD7_Zoom, fig.height=8, fig.width=8, warning=F}
+palette(rgb.a)
+
+x <- 'artur'
+y <- 'dolly'
+
+plot(d[,x], 
+     d[,y], 
+     log="xy", 
+     cex = sqrt(d$length)/100, 
+     pch=20, 
+     col=d$gc-min(d$gc), 
+     xlim = c(10,110),  
+     ylim = c(110,330), 
+     xlab = "artur", 
+     ylab = "dolly"
+     )
+
+#def<-locator(100, type="p", pch=20)
+
+def<-{}
+def$x <- c(22.53925,29.37870,43.54401,41.99851,32.09201,22.00272,21.65215)
+def$y <- c(158.2412,198.6643,196.4894,147.0444,112.0794,111.6689,125.1216)
+
+g1.selection.A <- ahull(def, alpha=100000)  
+
+plot(g1.selection.A, col="black",add=T)
+```
+
+Extract all scaffolds and information on essential genes within the defined subspace using the **extract** function.
+
+```{r ACD7_extraction_A}
+g1.s.A<-extract(d,g1.selection.A,d[,x],d[,y])
+g1.e.A<-extract(e,g1.selection.A,e[,x],e[,y])
+```
+
+See the basic statistics of the selected scaffolds.
+
+```{r ACD7_stats_A}
+calc.genome.stats(g1.s.A, g1.e.A)
+```
+
+Add the genome statistics to a list and print the name of the scaffolds to a file for further refinement.
+
+```{r ACD7_write_output}
+genome.stats<-rbind(genome.stats,t(calc.genome.stats(g1.s.A, g1.e.A)))
+rownames(genome.stats)[nrow(genome.stats)]<-"ACD7"
+show(genome.stats)
+write.table(g1.s.A$name,file="ACD7.txt",quote=F,row.names=F,col.names=F)
+```
+
+The name of the scaffolds can be used to extract the scaffolds from the original **assembly.fa**.
+
+### ACD11 (ID7)
+
+```{r ACD11_Zoom, fig.height=10, fig.width=10, warning=F}
+palette(rgb.a)
+
+x <- 'artur'
+y <- 'chris'
+
+plot(d[,x], 
+     d[,y], 
+     log="xy", 
+     cex = sqrt(d$length)/100, 
+     pch=20, 
+     col=d$gc-min(d$gc), 
+     xlim = c(14,20),  
+     ylim = c(12,24), 
+     xlab = "Coverage (artur)", 
+     ylab = "Coverage (chris)"
+     )
+
+#def<-locator(100, type="p", pch=20)
+
+def<-{}
+def$x<-c(14.49687,15.44434,16.40467,16.43409,15.84612,14.88289,14.18850,14.29909)
+def$y<-c(18.89959,19.86491,18.51920,16.86565,16.37567,15.91610,16.21004,17.35263)
+
+selection.A <- ahull(def, alpha=100000)  
+
+plot(selection.A, col="black",add=T)
+```
+
+Extract all scaffolds and information on essential genes within the defined subspace using the **extract** function.
+
+```{r ACD11_extraction_A}
+s.A<-extract(d,selection.A,d[,x],d[,y])
+e.A<-extract(e,selection.A,e[,x],e[,y])
+```
+
+See the basic statistics of the selected scaffolds.
+
+```{r ACD11_stats_A}
+calc.genome.stats(s.A, e.A)
+```
+
+Which of the single copy genes are duplicated? Note that some genomes might have duplicates of some "single copy genes".
+
+```{r  ACD11_duplicates_A}
+d.A<-e.A[which(duplicated(e.A$hmm.id) | duplicated(e.A$hmm.id, fromLast=TRUE)),] 
+d.A[order(d.A$hmm.id),c(1,3,9)]
+```
+
+As there is multiple genomes in the subset we make a PCA on the scaffolds in the subset.
+
+```{r ACD11_PCA}
+rda <- rda(kmer[s.A$name,2:ncol(kmer)],scale=T)
+scores <- scores(rda,choices=1:5)$sites
+
+s.B<-cbind(s.A,scores)
+e.B<-merge(e.A,s.B[,c(1,9:13)],all.x=T,by="name")
+d.B<-merge(d.A,s.B[,c(1,9:13)],all.x=T,by="name")
+```
+
+We use the pairs function to plot the first 3 components along with GC and coverages.
+
+```{r ACD11_plot_PCA, fig.height=10, fig.width=10, warning=F}
+palette(rgb.a)
+pairs(s.B[,c(4,5,6,3,10:12)], upper.panel=NULL, col = s.B$gc-min(d$gc), cex = sqrt(s.B$length)/100, pch=20)
+```
+
+gc and PC1 seem to seperate our target genome from the other scaffolds and is therefore used for another extraction using the locator function.
+
+```{r ACD11_extract_PCA, fig.height=10, fig.width=10, warning=F}
+palette(rgb.a)
+x <- 'PC1'
+y <- 'gc'
+
+plot(s.B[,x], 
+     s.B[,y], 
+     cex = sqrt(s.B$length)/100, 
+     pch=20, 
+     col=s.B$gc-min(d$gc), 
+     xlab = x, 
+     ylab = y
+     )
+
+palette(brewer.pal(9,"Set1"))
+
+points(s.B[,x], 
+       s.B[,y],
+       col=s.B$tax.color+1,
+       pch = 20
+       )
+
+#def<-locator(100, type="p", pch=20)
+
+def<-{}
+def$x <- c(-2.243233,-1.924081,-1.327407,-1.112326,-1.355159,-1.910205,-2.215480)
+def$y <- c(36.54946,41.04229,41.34862,38.59166,33.38405,30.21865,30.93342)
+
+selection.B <- ahull(def, alpha=100000)  
+
+plot(selection.B, col="black",add=T)
+```
+
+Again the **extract** function is used to retrive the scaffolds in the selected subset.
+
+```{r ACD11_extraction_C}
+s.C<-extract(s.B,selection.B,s.B[,x],s.B[,y])
+e.C<-extract(e.B,selection.B,e.B[,x],e.B[,y])
+```
+
+See the basic statistics of the selected scaffolds.
+
+```{r ACD11_stats_C}
+calc.genome.stats(s.C, e.C)
+```
+
+There are a few duplicated "single copy genes" however in this case it is not due to mulitple species in the bin, but real duplicates in the genome.
+
+```{r ACD11_duplicates_C}
+d.C<-e.C[which(duplicated(e.C$hmm.id) | duplicated(e.C$hmm.id, fromLast=TRUE)),] 
+d.C[order(d.C$hmm.id),c(1,3,9)]
+```
+
+Add the genome statistics to a list and print the name of the scaffolds to a file for further refinement.
+
+```{r ACD11_write_output}
+genome.stats<-rbind(genome.stats,t(calc.genome.stats(s.C, e.C)))
+rownames(genome.stats)[nrow(genome.stats)]<-"ACD11"
+show(genome.stats)
+write.table(s.C$name,file="ACD11.txt",quote=F,row.names=F,col.names=F)
+```
+
+***
+
+### ACD18 (ID3)
+
+```{r ACD18_Zoom, fig.height=10, fig.width=10, warning=F}
+palette(rgb.a)
+
+x <- 'artur'
+y <- 'chris'
+
+plot(d[,x], 
+     d[,y], 
+     log="xy", 
+     cex = sqrt(d$length)/100, 
+     pch=20, 
+     col=d$gc-min(d$gc), 
+     xlim = c(5,15),  
+     ylim = c(20,35), 
+     xlab = "Coverage (artur)", 
+     ylab = "Coverage (chris)"
+     )
+
+#def<-locator(100, type="p", pch=20)
+
+def<-{}
+def$x<-c(7.123314,7.752358,8.801595,10.540435,10.915373,10.975781,9.702994,8.657068,7.667259,6.815650,6.967785)
+def$y<-c(26.89320,28.41353,30.11852,29.28965,27.47327,25.55890,24.59171,23.85612,22.95336,23.46770,25.60089)
+
+selection.A <- ahull(def, alpha=100000)  
+
+plot(selection.A, col="black",add=T)
+```
+
+Extract all scaffolds and information on essential genes within the defined subspace using the **extract** function.
+
+```{r ACD18_extraction_A}
+s.A<-extract(d,selection.A,d[,x],d[,y])
+e.A<-extract(e,selection.A,e[,x],e[,y])
+```
+
+See the basic statistics of the selected scaffolds.
+
+```{r ACD18_stats_A}
+calc.genome.stats(s.A, e.A)
+```
+
+Which of the single copy genes are duplicated? Note that some genomes might have duplicates of some "single copy genes".
+
+```{r  ACD18_duplicates_A}
+d.A<-e.A[which(duplicated(e.A$hmm.id) | duplicated(e.A$hmm.id, fromLast=TRUE)),] 
+d.A[order(d.A$hmm.id),c(1,3,9)]
+```
+
+As there is multiple genomes in the subset we make a PCA on the scaffolds in the subset.
+
+```{r ACD18_PCA}
+rda <- rda(kmer[s.A$name,2:ncol(kmer)],scale=T)
+scores <- scores(rda,choices=1:5)$sites
+
+s.B<-cbind(s.A,scores)
+e.B<-merge(e.A,s.B[,c(1,9:13)],all.x=T,by="name")
+d.B<-merge(d.A,s.B[,c(1,9:13)],all.x=T,by="name")
+```
+
+We use the pairs function to plot the first 5 components. I've also added GC and coverage.
+
+```{r ACD18_plot_PCA, fig.height=10, fig.width=10, warning=F}
+palette(rgb.a)
+pairs(s.B[,c(4,5,6,3,10:12)], upper.panel=NULL, col = s.B$gc-min(d$gc), cex = sqrt(s.B$length)/100, pch=20)
+```
+
+PC1 and PC2 seem to seperate our target genome from the other scaffolds and is therefore used for another extraction using the locator function.
+
+```{r ACD18_Extract_PCA, fig.height=10, fig.width=10, warning=F}
+palette(rgb.a)
+x <- 'PC1'
+y <- 'PC2'
+
+plot(s.B[,x], 
+     s.B[,y], 
+     cex = sqrt(s.B$length)/100, 
+     pch=20, 
+     col=s.B$gc-min(d$gc), 
+     xlab = x, 
+     ylab = y
+     )
+
+palette(brewer.pal(9,"Set1"))
+
+points(s.B[,x], 
+       s.B[,y],
+       col=s.B$tax.color+1,
+       pch = 20
+       )
+
+#def<-locator(100, type="p", pch=20)
+
+def<-{}
+def$x <- c(-1.3937311,-0.8936282,-0.2720717,-0.4435356,-1.1293910,-1.4008754)
+def$y <- c(1.7551005,1.9320907,0.8037781,-2.0059416,-2.2714269,-0.5457723)
+
+selection.B <- ahull(def, alpha=100000)  
+
+plot(selection.B, col="black",add=T)
+```
+
+Again the **extract** function is used to retrive the scaffolds in the selected subset.
+
+```{r ACD18_extraction_C}
+s.C<-extract(s.B,selection.B,s.B[,x],s.B[,y])
+e.C<-extract(e.B,selection.B,e.B[,x],e.B[,y])
+```
+
+See the basic statistics of the selected scaffolds.
+
+```{r ACD18_stats_C}
+calc.genome.stats(s.C, e.C)
+```
+
+There are a few duplicated "single copy genes" however in this case it is not due to mulitple species in the bin, but real duplicates in the genome.
+
+```{r  ACD18_duplicates_C}
+d.C<-e.C[which(duplicated(e.C$hmm.id) | duplicated(e.C$hmm.id, fromLast=TRUE)),] 
+d.C[order(d.C$hmm.id),c(1,3,9)]
+```
+
+Add the genome statistics to a list and print the name of the scaffolds to a file for further refinement.
+
+```{r ACD18_write_output}
+genome.stats<-rbind(genome.stats,t(calc.genome.stats(s.C, e.C)))
+rownames(genome.stats)[nrow(genome.stats)]<-"ACD18"
+show(genome.stats)
+write.table(s.C$name,file="ACD18.txt",quote=F,row.names=F,col.names=F)
+```
+
+***
+
+### ACD81 (ID16)
+
+```{r ACD81_Zoom, fig.height=10, fig.width=10, warning=F}
+palette(rgb.a)
+
+x <- 'artur'
+y <- 'chris'
+
+plot(d[,x], 
+     d[,y], 
+     log="xy", 
+     cex = sqrt(d$length)/100, 
+     pch=20, 
+     col=d$gc-min(d$gc), 
+     xlim = c(50,400),  
+     ylim = c(20,100), 
+     xlab = "Coverage (artur)", 
+     ylab = "Coverage (chris)"
+     )
+
+#def<-locator(100, type="p", pch=20)
+
+def<-{}
+def$x<-c(141.32290,182.22434,220.68857,206.56046,154.17667,115.47883,91.13176,106.59105)
+def$y<-c(77.13024,89.70879,82.59511,66.62922,52.24841,42.95213,47.99183,59.07197)
+
+selection.A <- ahull(def, alpha=100000)  
+
+plot(selection.A, col="black",add=T)
+```
+
+Extract all scaffolds and information on essential genes within the defined subspace using the **extract** function.
+
+```{r ACD81_extraction_A}
+s.A<-extract(d,selection.A,d[,x],d[,y])
+e.A<-extract(e,selection.A,e[,x],e[,y])
+```
+
+See the basic statistics of the selected scaffolds.
+
+```{r ACD81_stats_A}
+calc.genome.stats(s.A, e.A)
+```
+
+Which of the single copy genes are duplicated? Note that some genomes might have duplicates of some "single copy genes".
+
+```{r  ACD81_duplicates_A}
+d.A<-e.A[which(duplicated(e.A$hmm.id) | duplicated(e.A$hmm.id, fromLast=TRUE)),] 
+d.A[order(d.A$hmm.id),c(1,3,9)]
+```
+
+As there is multiple genomes in the subset we make a PCA on the scaffolds in the subset.
+
+```{r ACD81_PCA}
+rda <- rda(kmer[s.A$name,2:ncol(kmer)],scale=T)
+scores <- scores(rda,choices=1:5)$sites
+
+s.B<-cbind(s.A,scores)
+e.B<-merge(e.A,s.B[,c(1,9:13)],all.x=T,by="name")
+d.B<-merge(d.A,s.B[,c(1,9:13)],all.x=T,by="name")
+```
+
+We use the pairs function to plot the first 3 components. I've also added GC and coverage.
+
+```{r ACD81_plot_PCA, fig.height=10, fig.width=10, warning=F}
+palette(rgb.a)
+pairs(s.B[,c(4,5,6,3,10:12)], upper.panel=NULL, col = s.B$gc-min(d$gc), cex = sqrt(s.B$length)/100, pch=20)
+```
+
+Dolly and PC1 seem to seperate our target genome from the other scaffolds and is therefore used for another extraction using the locator function.
+
+```{r ACD81_extract_PCA, fig.height=10, fig.width=10, warning=F}
+palette(rgb.a)
+
+x <- 'dolly'
+y <- 'PC1'
+
+plot(s.B[,x], 
+     s.B[,y], 
+     cex = sqrt(s.B$length)/100, 
+     pch=20, 
+     col=s.B$gc-min(d$gc),
+     xlab = x, 
+     ylab = y
+     )
+
+palette(brewer.pal(9,"Set1"))
+
+points(s.B[,x], 
+       s.B[,y],
+       col=s.B$tax.color+1,
+       pch = 20
+       )
+
+#def<-locator(100, type="p", pch=20)
+
+def<-{}
+def$x <- c(4.704506,10.458191,21.965560,25.948880,19.752604,6.917462,4.261915,3.487380)
+def$y <- c(3.08790308,4.14699005,3.67749789,0.09625533,-2.74253450,-3.08100560,-0.75538162,1.24268968)
+
+selection.B <- ahull(def, alpha=100000)  
+
+plot(selection.B, col="black",add=T)
+```
+
+Again the **extract** function is used to retrive the scaffolds in the selected subset.
+
+```{r ACD81_extraction_C}
+s.C<-extract(s.B,selection.B,s.B[,x],s.B[,y])
+e.C<-extract(e.B,selection.B,e.B[,x],e.B[,y])
+```
+
+See the basic statistics of the selected scaffolds.
+
+```{r ACD81_stats_C}
+calc.genome.stats(s.C, e.C)
+```
+
+There are a few duplicated "single copy genes". In this case it might indicate that the bin includes a small amount of another bacteria. It can be cleaned up by using the cytoscape network graph approach.
+
+```{r ACD81_duplicates_C}
+d.C<-e.C[which(duplicated(e.C$hmm.id) | duplicated(e.C$hmm.id, fromLast=TRUE)),] 
+d.C[order(d.C$hmm.id),c(1,3,9)]
+```
+
+Add the genome statistics to a list and print the name of the scaffolds to a file for further refinement.
+
+```{r ACD81_write_output}
+genome.stats<-rbind(genome.stats,t(calc.genome.stats(s.C, e.C)))
+rownames(genome.stats)[nrow(genome.stats)]<-"ACD81"
+show(genome.stats)
+write.table(s.C$name,file="ACD81.txt",quote=F,row.names=F,col.names=F)
+```
+
+***
+
+### ACD1 (ID2)
+
+```{r ACD1_Zoom, fig.height=10, fig.width=10, warning=F}
+palette(rgb.a)
+
+x <- 'artur'
+y <- 'chris'
+
+plot(d[,x], 
+     d[,y], 
+     log="xy", 
+     cex = sqrt(d$length)/100, 
+     pch=20, 
+     col=d$gc-min(d$gc), 
+     xlim = c(10,40),  
+     ylim = c(50,200), 
+     xlab = "Coverage (artur)", 
+     ylab = "Coverage (chris)"
+     )
+
+#def<-locator(100, type="p", pch=20)
+
+def<-{}
+def$x<-c(13.56975,18.23237,22.18760,20.97212,14.47928,12.58774)
+def$y<-c(137.0190,183.6269,163.2003,139.5494,111.1294,113.6429)
+
+selection.A <- ahull(def, alpha=100000)  
+
+plot(selection.A, col="black",add=T)
+```
+
+Extract all scaffolds and information on essential genes within the defined subspace using the **extract** function.
+
+```{r ACD1_extraction_A}
+s.A<-extract(d,selection.A,d[,x],d[,y])
+e.A<-extract(e,selection.A,e[,x],e[,y])
+```
+
+See the basic statistics of the selected scaffolds.
+
+```{r ACD1_stats_A}
+calc.genome.stats(s.A, e.A)
+```
+
+Which of the single copy genes are duplicated? Note that some genomes might have duplicates of some "single copy genes".
+
+```{r ACD1_duplicates_A}
+d.A<-e.A[which(duplicated(e.A$hmm.id) | duplicated(e.A$hmm.id, fromLast=TRUE)),] 
+d.A[order(d.A$hmm.id),c(1,3,9)]
+```
+
+As there is multiple genomes in the subset we make a PCA on the scaffolds in the subset.
+
+```{r ACD1_PCA}
+rda <- rda(kmer[s.A$name,2:ncol(kmer)],scale=T)
+scores <- scores(rda,choices=1:5)$sites
+
+s.B<-cbind(s.A,scores)
+e.B<-merge(e.A,s.B[,c(1,9:13)],all.x=T,by="name")
+d.B<-merge(d.A,s.B[,c(1,9:13)],all.x=T,by="name")
+```
+
+We use the pairs function to plot the first 3 components. I've also added GC and coverage. There is nothing obiouvs that can be removed.
+
+```{r ACD1_plot_PCA, fig.height=10, fig.width=10, warning=F}
+palette(rgb.a)
+
+pairs(s.B[,c(4,5,6,3,10:12)], upper.panel=NULL, col = s.B$gc-min(d$gc), cex = sqrt(s.B$length)/100, pch=20)
+```
+
+Add the genome statistics to a list and print the name of the scaffolds to a file for further refinement.
+
+```{r ACD1_write_output}
+genome.stats<-rbind(genome.stats,t(calc.genome.stats(s.B, e.B)))
+rownames(genome.stats)[nrow(genome.stats)]<-"ACD1"
+show(genome.stats)
+write.table(s.B$name,file="ACD1.txt",quote=F,row.names=F,col.names=F)
+```
