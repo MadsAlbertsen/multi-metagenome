@@ -24,7 +24,7 @@ bowtie2 -x assembly -U reads.fastq -S alignment.sam
 
 From the alignment (`alignment.sam`) there are many ways to extract the coverage of each scaffold. One option is to use the `depth` function in [samtools](http://samtools.sourceforge.net/).
 
-Using [samtools]((http://samtools.sourceforge.net/)) first convert the `.sam` file to `.bam` format and then sort it. Now the `depth` function is used to generate a position based coverage profile of each scaffold (`depth.txt`). 
+Using [samtools]((http://samtools.sourceforge.net/) first convert the `.sam` file to `.bam` format and then sort it. Now the `depth` function is used to generate a position based coverage profile of each scaffold (`depth.txt`). 
 
 {% highlight text%}
 samtools view -bS alignment.sam > alignment.bam
@@ -32,13 +32,13 @@ samtools sort alignment.bam alignment.sorted.bam
 samtools depth alignment.sorted.bam > depth.txt
 {% endhighlight %}
 
-To generate single average coverage vaule for each scaffold you can use the small perl script `calc.coverage.in.bam.depth.pl` in the folder `multi-metagenome/misc.scripts`. It generates a file that is equivalent to the `.csv` file obtained using CLC.
+To generate single average coverage vaule for each scaffold you can use the small perl script `calc.coverage.in.bam.depth.pl` in the folder `multi-metagenome/misc.scripts`. It generates `coverage.length.csv.` which is equivalent to the `.csv` file obtained using CLC.
 
 {% highlight text%}
 perl calc.coverage.in.bam.depth.pl -i depth.txt -o coverage.length.csv
 {% endhighlight %}
 
-Alternative you can load `depth.txt` directly in R and make the calculations in there. However, the size of the `depth.txt` file might be quite large as it stores a line for each base in the assembly. Anyway if you wan't the data in R you could do something like this:
+Alternative you can load `depth.txt` directly in R and make the calculations in there. However, the size of the `depth.txt` file might be quite large as it stores a line for each base in the assembly. Anyway if you want to handle the data in R you could do something like this:
 
 {% highlight r%}
 cov <- read.delim("depth.txt", header = F)
