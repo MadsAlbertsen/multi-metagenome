@@ -28,7 +28,7 @@ Using [samtools]((http://samtools.sourceforge.net/) first convert the `.sam` fil
 
 {% highlight text%}
 samtools view -bS alignment.sam > alignment.bam
-samtools sort alignment.bam alignment.sorted.bam
+samtools sort alignment.bam alignment.sorted
 samtools depth alignment.sorted.bam > depth.txt
 {% endhighlight %}
 
