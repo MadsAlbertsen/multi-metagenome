@@ -4,9 +4,15 @@ title: FAQ
 ---
 ##Frequently Asked Questions
 
-###Can you make the re-assembly of the Wrighton data available?
+### Can you make the re-assembly of the Wrighton data available?
 
 The re-assembly of the [Wrighton et al., 2012](http://www.sciencemag.org/content/337/6102/1661) data can be found in the [Additional Data](additional.html) section.
+
+### I can not match your sequences on NCBI with the data in your script?
+
+The sequences on NCBI are contigs. They have a header structure that can be used to relate them to the parrent scaffold. E.g. HPminus3.2 is the second contig in scaffold number 3. **Scaffold number 3** is the ID used in the R data to associate e.g. coverage to the scaffold. 
+
+Alternatively you can download the scaffolds [here](https://www.dropbox.com/s/ig6gie43tqfziif/assembly.rar).
 
 ### I do not have access to CLC - how do I map reads to the assembly and generate the .csv file used in R?
 
