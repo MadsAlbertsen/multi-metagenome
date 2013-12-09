@@ -78,7 +78,7 @@ if ($split != 0){
 	open(INtemp, $fastafile) or die("Cannot open $fastafile\n");
 	open(OUTtemp, ">$fastafile.sub.$split.fa") or die("Cannot open $fastafile\n");
 	while ( my $line = <INtemp>) {
-		chomp $line; 
+		chomp $line;
 		if ($line =~ m/>/) {		
 			$prevheader = $header;
 			$header = $line;	
@@ -98,7 +98,7 @@ if ($split != 0){
 			$counttemp++;
 			$seq = "";
 		}
-		else{
+		else{			
 			$seq = $seq.$line;
 		}
 	}
@@ -185,7 +185,7 @@ while ( my $line = <IN> ) {
 			if ($totalkmers > 0){
 				foreach my $probe1 (@kmerheader){				
 					my $temp1 = $kmer{$probe1}/$totalkmers;				
-					$output = $output."\t".sprintf("%.8f",$temp1);
+					$output = $output."\t".sprintf("%.5f",$temp1)*100;
 				}
 			print OUT "$output\n";
 			$seqcountgood++;
@@ -203,6 +203,7 @@ while ( my $line = <IN> ) {
 		$printreadcount++;		
 	}	
 	else{		
+		$line = uc($line);
 		$sequence = $sequence.$line;
 	}
 }
@@ -225,7 +226,7 @@ if ($minlength <= length($sequence)) {                                          
 	$output = $header;
 	foreach my $probe1 (@kmerheader){
 		my $temp1 = $kmer{$probe1}/$totalkmers;
-		$output = $output."\t".sprintf("%.6f",$temp1);
+		$output = $output."\t".sprintf("%.5f",$temp1)*100;
 	}
 	print OUT "$output\n";	
 }
