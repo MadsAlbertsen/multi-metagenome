@@ -132,7 +132,7 @@ while ( $line = <IN> ) {
 			@splitline = split(/\t/, $line); 
 			$start = 0;
 			$contigcov{$splitline[2]}++;
-			if ($splitline[1] != 19 and $splitline[1] != 35){															  #SAM Flags that indicate that these PE reads are maping as they are supposed to.. hence they are not interesting.. There are other PE flags that could be included to speed up the script.
+			if ($splitline[1] != 19 and $splitline[1] != 35 and $splitline[2] ne "\*"){															  #SAM Flags that indicate that these PE reads are maping as they are supposed to.. hence they are not interesting.. There are other PE flags that could be included to speed up the script.
 				if (($splitline[3]+$avgreadlength) <= $enddist or ($splitline[3]+$avgreadlength) >= ($contigs{$splitline[2]}-$enddist)) {            #The read is required to hit within a certain distance from the contigs ends.. The middle postition of the read is used
 					@splitline1 = split(/$headersplit/, $splitline[0]);													  #The read header - assumes "name_1xyz" or "name_2xyz"
 					if (exists($reads{$splitline1[0]})){                      											  #If one of the PE reads has already been seen then add the hit to the match hash														
