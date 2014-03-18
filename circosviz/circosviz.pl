@@ -144,12 +144,14 @@ while ( $line = <INsam> ) {
 	else {
 		if ($line !~ m/(\@PG|\@HD|\@SQ|\@RG)/) { 
 			@splitline = split(/\t/, $line);
+			if ($splitline[2] ne "*"){
 			my $covbin = floor($splitline[3]/$circoscbin);
 			$contigcov{$splitline[2]}++;	
 			my $tempcovbin = $splitline[2].":".$covbin;
 			$circoscov{$tempcovbin}++;	
 			@splitline1 = split(/$headersplit/, $splitline[0]);															  #The read header - assumes the new Illumina format! e.g. "name space 1" or "name space 2"		
 			if ($splitline[1] != 19 and $splitline[1] != 35){															  #SAM Flags that indicate that these PE reads are maping as they are supposed to.. hence they are not interesting..																									#Between diferent contigs? Between the same contig - e.g check if plasmid.
+				print "$splitline[1]\n";				
 				if ((($splitline[3]+$avgreadlength) <= $enddist or ($splitline[3]+$avgreadlength) >= ($contigs{$splitline[2]}-$enddist))  and !exists($breads{$splitline1[0]})) {            #The read is required to hit within a certain distance from the contigs ends.. The middle postition of the read is used
 					if (exists($reads{$splitline1[0]})){                      											  #If one of the PE reads has already been seen then add the hit to the match hash														
 						@splitline2 = split(/\t/,$reads{$splitline1[0]});	
@@ -245,6 +247,7 @@ while ( $line = <INsam> ) {
 				$printreadcount = 0;
 				print "$readcount reads looked through\n";
 			}		
+			}
 		}	
 	}
 }
