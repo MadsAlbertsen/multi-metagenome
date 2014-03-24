@@ -40,6 +40,7 @@ library("alphahull")
 library("ggplot2")
 {% endhighlight %}
 
+Note that the new version of `alphahull (1.0.0)` is broken - you have to manually install version 0.2-1 which can be obtained [here](http://cran.r-project.org/src/contrib/Archive/alphahull/.) otherwise the `extract` function will not work.
 
 ### Read in all the data
 
